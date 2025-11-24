@@ -26,7 +26,7 @@ interface GPCardProps {
     city?: string;
     zone?: string;
   };
-  onJoinSuccess?: () => void;
+  onJoinSuccess?: (gpId: string) => void;
 }
 
 export default function GPCard({ gp, onJoinSuccess }: GPCardProps) {
