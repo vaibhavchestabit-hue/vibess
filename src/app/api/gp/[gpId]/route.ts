@@ -6,7 +6,7 @@ import getUserFromToken from "@/src/app/helpers/getUserFromToken";
 // Get GP details
 export async function GET(
   req: NextRequest,
-  { params }: { params: { gpId: string } }
+  { params }: { params: Promise<{ gpId: string }> }
 ) {
   try {
     await connectDB();
@@ -16,7 +16,7 @@ export async function GET(
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const { gpId } = params;
+    const { gpId } = await params;
 
     const gp = await Group.findById(gpId)
       .populate("createdBy", "name username profileImage")
