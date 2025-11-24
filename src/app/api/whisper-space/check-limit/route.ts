@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
       .sort({ createdAt: -1 })
       .lean();
 
-    if (recentConfession) {
+    if (recentConfession && !Array.isArray(recentConfession) && recentConfession.createdAt) {
       const timeUntilNext = Math.ceil(
         (new Date(recentConfession.createdAt).getTime() + 6 * 60 * 60 * 1000 - Date.now()) / (1000 * 60)
       );
