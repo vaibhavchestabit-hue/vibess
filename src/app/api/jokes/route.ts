@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
     const apiKey = process.env.RAPIDAPI_KEY;
     
     // If no API key is set, return a random fallback joke
-    if (!apiKey || apiKey === 'RAPIDAPI-KEY') {
+    if (!apiKey || apiKey === 'RAPIDAPI_KEY') {
       const randomJoke = fallbackJokes[Math.floor(Math.random() * fallbackJokes.length)];
       return NextResponse.json([{ joke: randomJoke }], { status: 200 });
     }
