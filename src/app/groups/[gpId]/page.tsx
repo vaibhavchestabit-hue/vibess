@@ -190,7 +190,7 @@ export default function GroupChatPage() {
 
   if (loadingGroup) {
     return (
-      <div className="h-full w-full bg-linear-to-br from-[#0a0118] via-[#1d0033] to-[#2a0044] flex items-center justify-center">
+      <div className="min-h-full w-full bg-linear-to-br from-[#0a0118] via-[#1d0033] to-[#2a0044] flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
       </div>
     );
