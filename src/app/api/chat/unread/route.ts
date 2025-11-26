@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
       { messages: 1 }
     ).lean();
 
-    let latestUnreadMessage = null;
+    let latestUnreadMessage:any = null;
 
     const unreadCount = chats.reduce((count, chat) => {
       const unreadMessages = (chat.messages || []).filter((msg: any) => {
