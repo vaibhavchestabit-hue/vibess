@@ -26,7 +26,7 @@ interface GPCardProps {
     city?: string;
     zone?: string;
   };
-  onJoinSuccess?: (gpId: string) => void;
+  onJoinSuccess?: () => void;
 }
 
 export default function GPCard({ gp, onJoinSuccess }: GPCardProps) {
@@ -35,14 +35,14 @@ export default function GPCard({ gp, onJoinSuccess }: GPCardProps) {
 
   const handleJoin = async () => {
     if (isJoining) return;
-    
+
     setIsJoining(true);
     try {
       const res = await joinGP(gp._id);
       if (res.success) {
         toast.success("Successfully joined GP!");
         if (onJoinSuccess) {
-          onJoinSuccess(gp._id);
+          onJoinSuccess();
         } else {
           // Redirect to groups page after joining
           router.push("/groups");

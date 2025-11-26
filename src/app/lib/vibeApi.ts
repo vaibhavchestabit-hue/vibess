@@ -59,7 +59,7 @@ export async function getVibeHeatmap(lat?: number, lng?: number, radius?: number
     if (lat !== undefined) params.append("lat", lat.toString());
     if (lng !== undefined) params.append("lng", lng.toString());
     if (radius !== undefined) params.append("radius", radius.toString());
-    
+
     const res = await api.get(`/vibe/heatmap?${params.toString()}`);
     return res.data;
   } catch (error: any) {
@@ -187,58 +187,6 @@ export async function getUnreadChatCount() {
     if (error?.response?.status !== 401) {
       console.error("Error fetching unread chats:", error);
     }
-    throw error;
-  }
-}
-
-////////////////   CHAT ROOM API
-
-export async function generateChatRoom() {
-  try {
-    const res = await api.post("/chat-room/generate");
-    return res.data;
-  } catch (error: any) {
-    console.error("Error generating chat room:", error);
-    throw error;
-  }
-}
-
-export async function getChatRooms() {
-  try {
-    const res = await api.get("/chat-room/list");
-    return res.data;
-  } catch (error: any) {
-    console.error("Error fetching chat rooms:", error);
-    throw error;
-  }
-}
-
-export async function getChatRoom(roomId: string) {
-  try {
-    const res = await api.get(`/chat-room/${roomId}`);
-    return res.data;
-  } catch (error: any) {
-    console.error("Error fetching chat room:", error);
-    throw error;
-  }
-}
-
-export async function sendChatRoomMessage(roomId: string, text: string) {
-  try {
-    const res = await api.post(`/chat-room/${roomId}`, { text });
-    return res.data;
-  } catch (error: any) {
-    console.error("Error sending chat room message:", error);
-    throw error;
-  }
-}
-
-export async function expireAndRegenerateChatRooms() {
-  try {
-    const res = await api.post("/chat-room/expire");
-    return res.data;
-  } catch (error: any) {
-    console.error("Error expiring and regenerating chat rooms:", error);
     throw error;
   }
 }

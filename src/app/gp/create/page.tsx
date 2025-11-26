@@ -58,6 +58,11 @@ export default function CreateGPPage() {
   const [reasonNote, setReasonNote] = useState<string>("");
   const [location, setLocation] = useState<{ latitude: number; longitude: number; city?: string; zone?: string } | null>(null);
 
+  // Suggestion Modal State
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestionData, setSuggestionData] = useState<any>(null);
+  const [joiningWaitlist, setJoiningWaitlist] = useState(false);
+
   useEffect(() => {
     if (!user) {
       router.push("/login");
@@ -142,6 +147,29 @@ export default function CreateGPPage() {
     setStep(step - 1);
   };
 
+  const handleJoinWaitlist = async () => {
+    setJoiningWaitlist(true);
+    try {
+      const res = await fetch("/api/gp/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("Added to waitlist! We'll notify you when a slot opens.");
+        setShowSuggestions(false);
+        router.push("/app-home");
+      } else {
+        toast.error(data.message || "Failed to join waitlist");
+      }
+    } catch (error) {
+      toast.error("Something went wrong");
+    } finally {
+      setJoiningWaitlist(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!location) {
       toast.error("Location is required to create a GP");
@@ -178,7 +206,13 @@ export default function CreateGPPage() {
         toast.success("GP created successfully! 🎉");
         router.push("/app-home");
       } else {
-        toast.error(data.message || "Failed to create GP");
+        // Handle Category Full with Suggestions
+        if (response.status === 403 && data.reason === "category_full") {
+          setSuggestionData(data);
+          setShowSuggestions(true);
+        } else {
+          toast.error(data.message || "Failed to create GP");
+        }
       }
     } catch (error: any) {
       toast.error(error.message || "Failed to create GP");
@@ -257,19 +291,17 @@ export default function CreateGPPage() {
             {[1, 2, 3, 4].map((s) => (
               <div key={s} className="flex items-center flex-1">
                 <div
-                  className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${
-                    step >= s
-                      ? "bg-gradient-to-r from-purple-500 to-pink-500 border-purple-500 text-white"
-                      : "bg-white/5 border-white/20 text-white/40"
-                  }`}
+                  className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${step >= s
+                    ? "bg-gradient-to-r from-purple-500 to-pink-500 border-purple-500 text-white"
+                    : "bg-white/5 border-white/20 text-white/40"
+                    }`}
                 >
                   {step > s ? <Check className="w-5 h-5" /> : s}
                 </div>
                 {s < 4 && (
                   <div
-                    className={`flex-1 h-0.5 mx-2 transition-all ${
-                      step > s ? "bg-gradient-to-r from-purple-500 to-pink-500" : "bg-white/10"
-                    }`}
+                    className={`flex-1 h-0.5 mx-2 transition-all ${step > s ? "bg-gradient-to-r from-purple-500 to-pink-500" : "bg-white/10"
+                      }`}
                   />
                 )}
               </div>
@@ -300,11 +332,10 @@ export default function CreateGPPage() {
                     setSpecificName("");
                     setGenre("");
                   }}
-                  className={`p-6 rounded-xl border-2 transition-all text-left ${
-                    category === cat
-                      ? "bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/50"
-                      : "bg-white/5 border-white/10 hover:border-white/20"
-                  }`}
+                  className={`p-6 rounded-xl border-2 transition-all text-left ${category === cat
+                    ? "bg-gradient-to-br from-purple-500/20 to-pink-500/20 border-purple-500/50"
+                    : "bg-white/5 border-white/10 hover:border-white/20"
+                    }`}
                 >
                   <div className="flex items-center gap-3 mb-2">
                     <span className="text-3xl">{getCategoryIcon(cat)}</span>
@@ -340,11 +371,10 @@ export default function CreateGPPage() {
                       setGenre("");
                     }
                   }}
-                  className={`w-full p-4 rounded-xl border-2 transition-all text-left ${
-                    subType === st
-                      ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/50"
-                      : "bg-white/5 border-white/10 hover:border-white/20"
-                  }`}
+                  className={`w-full p-4 rounded-xl border-2 transition-all text-left ${subType === st
+                    ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/50"
+                    : "bg-white/5 border-white/10 hover:border-white/20"
+                    }`}
                 >
                   <span className="text-white font-semibold">{st}</span>
                 </button>
@@ -360,11 +390,10 @@ export default function CreateGPPage() {
                     <button
                       key={g}
                       onClick={() => setGenre(g)}
-                      className={`p-3 rounded-lg border transition-all ${
-                        genre === g
-                          ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/50 text-white"
-                          : "bg-white/5 border-white/10 text-white/70 hover:border-white/20"
-                      }`}
+                      className={`p-3 rounded-lg border transition-all ${genre === g
+                        ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/50 text-white"
+                        : "bg-white/5 border-white/10 text-white/70 hover:border-white/20"
+                        }`}
                     >
                       {g}
                     </button>
@@ -403,11 +432,10 @@ export default function CreateGPPage() {
                 <button
                   key={topic}
                   onClick={() => toggleTalkTopic(topic)}
-                  className={`p-3 rounded-lg border transition-all text-left ${
-                    talkTopics.includes(topic)
-                      ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/50"
-                      : "bg-white/5 border-white/10 hover:border-white/20"
-                  }`}
+                  className={`p-3 rounded-lg border transition-all text-left ${talkTopics.includes(topic)
+                    ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/50"
+                    : "bg-white/5 border-white/10 hover:border-white/20"
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-white">{topic}</span>
@@ -447,11 +475,10 @@ export default function CreateGPPage() {
                 <button
                   key={reason}
                   onClick={() => setCreationReason(reason)}
-                  className={`p-4 rounded-lg border transition-all text-left ${
-                    creationReason === reason
-                      ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/50"
-                      : "bg-white/5 border-white/10 hover:border-white/20"
-                  }`}
+                  className={`p-4 rounded-lg border transition-all text-left ${creationReason === reason
+                    ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/50"
+                    : "bg-white/5 border-white/10 hover:border-white/20"
+                    }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-white">{reason}</span>
@@ -525,6 +552,67 @@ export default function CreateGPPage() {
           )}
         </div>
       </section>
+
+      {/* Suggestions Modal */}
+      {showSuggestions && suggestionData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#1a1a1a] rounded-2xl max-w-md w-full p-6 border border-white/10 shadow-2xl">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">⚠️</span>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">
+                Too many groups right now
+              </h3>
+              <p className="text-white/60 text-sm">
+                But people are leaving soon. Do you want to be first when a slot opens?
+              </p>
+            </div>
+
+            {suggestionData.suggestions?.groups?.length > 0 && (
+              <div className="mb-6">
+                <p className="text-sm font-medium text-purple-300 mb-3">
+                  {suggestionData.suggestions.title}:
+                </p>
+                <div className="space-y-3">
+                  {suggestionData.suggestions.groups.map((gp: any) => (
+                    <div key={gp.id} className="bg-white/5 p-3 rounded-xl border border-white/10">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="font-medium text-white">{gp.name}</span>
+                        <span className="text-xs text-white/40">{gp.members}/5 members</span>
+                      </div>
+                      <p className="text-xs text-white/50 line-clamp-1">{gp.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleJoinWaitlist}
+                disabled={joiningWaitlist}
+                className="flex-1 py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl text-white font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {joiningWaitlist ? "Joining..." : "Notify Me"}
+              </button>
+              <button
+                onClick={() => router.push("/explore")}
+                className="flex-1 py-3 bg-white/10 rounded-xl text-white font-semibold hover:bg-white/20 transition-colors"
+              >
+                Explore Instead
+              </button>
+            </div>
+
+            <button
+              onClick={() => setShowSuggestions(false)}
+              className="w-full mt-4 text-sm text-white/40 hover:text-white transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

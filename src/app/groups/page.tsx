@@ -119,7 +119,7 @@ export default function GroupsPage() {
           </div>
           <button
             onClick={handleJoinGP}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-linear-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all"
           >
             <Plus className="w-4 h-4" />
             <span className="font-semibold">Join Groups</span>
@@ -134,7 +134,7 @@ export default function GroupsPage() {
             <p className="text-white/40 text-sm mb-6">Join groups from the home page to see them here</p>
             <button
               onClick={handleJoinGP}
-              className="px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all font-semibold"
+              className="px-6 py-2.5 bg-linear-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:from-purple-600 hover:to-pink-600 transition-all font-semibold"
             >
               Browse Groups
             </button>
@@ -144,7 +144,7 @@ export default function GroupsPage() {
             {gps.map((gp) => (
               <div
                 key={gp._id}
-                className={`bg-gradient-to-br ${getCategoryColor(gp.category)} rounded-xl p-5 border backdrop-blur-sm hover:shadow-lg transition-all`}
+                className={`bg-linear-to-br ${getCategoryColor(gp.category)} rounded-xl p-5 border backdrop-blur-sm hover:shadow-lg transition-all`}
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
@@ -195,7 +195,7 @@ export default function GroupsPage() {
                     {gp.members.slice(0, 3).map((member: any, idx: number) => (
                       <div
                         key={idx}
-                        className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 border-2 border-[#1a0030] flex items-center justify-center text-white text-xs font-semibold"
+                        className="w-8 h-8 rounded-full bg-linear-to-br from-purple-500 to-pink-500 border-2 border-[#1a0030] flex items-center justify-center text-white text-xs font-semibold"
                       >
                         {member?.profileImage ? (
                           <img
@@ -228,10 +228,10 @@ export default function GroupsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => router.push(`/chat-room?gpId=${gp._id}`)}
+                      onClick={() => router.push(`/groups/${gp._id}`)}
                       className="px-3 py-1.5 bg-white/20 text-white rounded-lg text-xs font-semibold hover:bg-white/30 transition-all"
                     >
-                      Open
+                      Open Chat
                     </button>
                     {!gp.isPermanent && (
                       <button

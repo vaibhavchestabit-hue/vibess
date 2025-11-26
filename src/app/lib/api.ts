@@ -54,7 +54,7 @@ api.interceptors.response.use(
 
       try {
         const refreshResponse = await refreshAccessToken();
-        
+
         if (refreshResponse.ok) {
           // Token refreshed successfully, retry original request
           processQueue(null, null);
@@ -138,10 +138,10 @@ export async function loginUser(credentials: { identifier: string; password: str
 
 ////// LOGOUT User
 export async function logoutUser() {
-  try{
-    const res=await api.get("/user/auth/logout");
+  try {
+    const res = await api.get("/user/auth/logout");
     return res;
-  }catch(err){
+  } catch (err) {
     console.log(err);
   }
 }
@@ -151,7 +151,7 @@ export async function logoutUser() {
 
 export async function getUser() {
   try {
-    const res= await api.get('/user/me')
+    const res = await api.get('/user/me')
     return res;
   } catch (error) {
     console.log(error);
@@ -163,7 +163,7 @@ export async function getUser() {
 
 export async function getUserProfile() {
   try {
-    const res= await api.get('/user/profile')
+    const res = await api.get('/user/profile')
     return res;
   } catch (error) {
     console.log(error);
@@ -175,17 +175,17 @@ export async function getUserProfile() {
 /// refreshing the access token
 export async function refreshAccessToken() {
   try {
-    const res = await api.get("/user/auth/refresh", { 
+    const res = await api.get("/user/auth/refresh", {
       validateStatus: () => true,
       maxRedirects: 0, // Don't follow redirects
     });
-    
+
     // If we get a redirect (302/307), the refresh endpoint handled it server-side
     // The new token should be in cookies now, so we can consider it successful
     if (res.status >= 300 && res.status < 400) {
       return { ok: true, message: "Token refreshed via redirect" };
     }
-    
+
     return { ...res.data, status: res.status }; // include ok and status
   } catch (error: any) {
     // If it's a redirect error, that's actually fine - the server handled it
@@ -214,9 +214,9 @@ export async function signupUser(user: {}) {
 
 //// sending verifcation mail
 
-export async function verifyOTP(email:string,otp:string) {
-    try {
-    const res = await api.post("/user/auth/verifyotp",{email,otp})
+export async function verifyOTP(email: string, otp: string) {
+  try {
+    const res = await api.post("/user/auth/verifyotp", { email, otp })
     return res.data;
   }
   catch (error: any) {
@@ -377,6 +377,26 @@ export async function getGPDetails(gpId: string) {
   }
 }
 
+export async function getGroupMessages(gpId: string) {
+  try {
+    const res = await api.get(`/gp/${gpId}/messages`);
+    return res.data;
+  } catch (error: any) {
+    console.error("Error fetching GP messages:", error);
+    throw error;
+  }
+}
+
+export async function sendGroupMessage(gpId: string, text: string) {
+  try {
+    const res = await api.post(`/gp/${gpId}/messages`, { text });
+    return res.data;
+  } catch (error: any) {
+    console.error("Error sending GP message:", error);
+    throw error;
+  }
+}
+
 ////////// Whisper Space API
 
 export async function createConfession(text: string) {
@@ -431,10 +451,39 @@ export async function getDailyAdvice() {
   }
 }
 
+////////// Username Availability Check
+
+export async function checkUsernameAvailability(username: string) {
+  try {
+    const res = await api.get(`/user/check-username?username=${encodeURIComponent(username)}`);
+    return res.data;
+  } catch (error: any) {
+    console.error("Error checking username:", error);
+    throw error;
+  }
+}
 
 
 
 
+// Forgot Password
+export const forgotPassword = async (email: string) => {
+  try {
+    const response = await api.post("/auth/forgot-password", { email });
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || error;
+  }
+};
 
+// Reset Password
+export const resetPassword = async (data: any) => {
+  try {
+    const response = await api.post("/auth/reset-password", data);
+    return response.data;
+  } catch (error: any) {
+    throw error.response?.data || error;
+  }
+};
 
 export default api;

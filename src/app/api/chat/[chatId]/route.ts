@@ -156,7 +156,7 @@ export async function PATCH(
         const isAlreadyBlocked = currentUserDoc.blockedUsers.some(
           (blockedId: any) => blockedId.toString() === otherUserId
         );
-        
+
         if (!isAlreadyBlocked) {
           currentUserDoc.blockedUsers.push(otherUser);
           await currentUserDoc.save();
@@ -277,8 +277,18 @@ export async function PATCH(
       await currentUserDoc.save();
       await targetUserDoc.save();
 
+      // Add system notification message
+      chat.messages.push({
+        sender: user._id,
+        text: `${currentUserDoc.name} followed ${targetUserDoc.name}! 🎉`,
+        isIcebreaker: false,
+        isSystemMessage: true,
+        read: false,
+      });
+
       // Check if both users follow each other (permanent unlock)
       await chat.checkPermanentUnlock();
+      await chat.save();
 
       return NextResponse.json({
         success: true,

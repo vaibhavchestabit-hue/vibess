@@ -179,17 +179,112 @@ export default function LandingPage() {
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-12">
             Share Your Vibe
           </h2>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
-            {vibeCardExamples.map((card, idx) => (
-              <div
-                key={idx}
-                className="min-w-[280px] bg-gradient-to-br from-purple-600/30 to-pink-600/30 rounded-3xl p-6 border border-purple-500/30 backdrop-blur-xl"
-              >
-                <div className="text-6xl mb-4">{card.emoji}</div>
-                <h3 className="text-2xl font-bold mb-2">{card.description}</h3>
-                <p className="text-white/60 text-sm">#{card.tag}</p>
-              </div>
-            ))}
+          <div className="relative overflow-hidden">
+            {/* Auto-scrolling container */}
+            <div className="flex gap-4 animate-scroll">
+              {/* Duplicate cards for seamless loop */}
+              {[...vibeCardExamples, ...vibeCardExamples].map((card, idx) => (
+                <div
+                  key={idx}
+                  className="min-w-[280px] bg-gradient-to-br from-purple-600/30 to-pink-600/30 rounded-3xl p-6 border border-purple-500/30 backdrop-blur-xl flex-shrink-0"
+                >
+                  <div className="text-6xl mb-4">{card.emoji}</div>
+                  <h3 className="text-2xl font-bold mb-2">{card.description}</h3>
+                  <p className="text-white/60 text-sm">#{card.tag}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Join Groups Section */}
+      <section className="relative z-10 py-20 px-4 bg-white/5">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              Join Groups That Match Your Vibe
+            </h2>
+            <p className="text-xl text-white/70 max-w-2xl mx-auto">
+              Find your tribe based on your current mood and what you want to discuss
+            </p>
+          </div>
+
+          {/* Mood-Based Categories */}
+          <div className="mb-12">
+            <h3 className="text-2xl font-semibold mb-6 text-center text-purple-300">
+              Choose Your Mood
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { emoji: "😌", mood: "Chill & Relaxed", color: "from-blue-500/30 to-cyan-500/30" },
+                { emoji: "🔥", mood: "Energetic & Hyped", color: "from-orange-500/30 to-red-500/30" },
+                { emoji: "🤔", mood: "Deep Thoughts", color: "from-purple-500/30 to-indigo-500/30" },
+                { emoji: "😂", mood: "Fun & Laughs", color: "from-yellow-500/30 to-pink-500/30" },
+                { emoji: "💪", mood: "Motivated", color: "from-green-500/30 to-emerald-500/30" },
+                { emoji: "😴", mood: "Low Energy", color: "from-gray-500/30 to-slate-500/30" },
+                { emoji: "🎨", mood: "Creative Vibes", color: "from-pink-500/30 to-purple-500/30" },
+                { emoji: "🧘", mood: "Peaceful & Zen", color: "from-teal-500/30 to-green-500/30" },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className={`bg-gradient-to-br ${item.color} rounded-2xl p-4 border border-white/20 hover:border-purple-400 transition-all cursor-pointer hover:scale-105 backdrop-blur-xl`}
+                >
+                  <div className="text-4xl mb-2 text-center">{item.emoji}</div>
+                  <p className="text-white font-medium text-center text-sm">{item.mood}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Discussion Topics */}
+          <div>
+            <h3 className="text-2xl font-semibold mb-6 text-center text-pink-300">
+              What Do You Want to Discuss?
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {[
+                "🎮 Gaming",
+                "🎬 Movies & TV",
+                "🎵 Music",
+                "📚 Books",
+                "💼 Career Talk",
+                "💪 Fitness",
+                "🍕 Food & Cooking",
+                "✈️ Travel",
+                "💻 Tech & Coding",
+                "🎨 Art & Design",
+                "🌱 Mental Health",
+                "🐾 Pets",
+                "📸 Photography",
+                "⚽ Sports",
+                "🌍 World Events",
+                "🔬 Science",
+                "💡 Random Thoughts",
+                "🎭 Drama & Gossip",
+                "💰 Finance",
+                "🌟 Self Improvement",
+              ].map((topic, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white/10 hover:bg-white/20 rounded-xl px-4 py-3 border border-white/10 hover:border-purple-400 transition-all cursor-pointer hover:scale-105 backdrop-blur-sm"
+                >
+                  <p className="text-white text-sm font-medium text-center">{topic}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CTA Button */}
+          <div className="mt-12 text-center">
+            <Link
+              href="/signup"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold text-lg transition-all shadow-lg hover:shadow-xl hover:scale-105"
+            >
+              <Users className="w-5 h-5" />
+              Join Groups Now
+              <ArrowRight className="w-5 h-5" />
+            </Link>
           </div>
         </div>
       </section>

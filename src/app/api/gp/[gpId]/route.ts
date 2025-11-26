@@ -52,6 +52,8 @@ export async function GET(
           city: gp.city,
           zone: gp.zone,
         },
+        city: gp.city,
+        zone: gp.zone,
         members: gp.members,
         memberCount: gp.members.length,
         maxMembers: gp.maxMembers,

@@ -142,24 +142,23 @@ export default function LeftSide() {
             <button
               key={item.label}
               onClick={() => router.push(item.path)}
-              className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-all ${
-                isActive
-                  ? 'bg-purple-500/20 text-white border border-purple-500/30'
-                  : 'text-white/70 hover:text-white hover:bg-white/5'
-              }`}
+              className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-all ${isActive
+                ? 'bg-purple-500/20 text-white border border-purple-500/30'
+                : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
             >
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-purple-400' : ''}`} />
                 <span className="text-sm font-medium truncate">{item.label}</span>
               </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {item.label === "Chats" && unreadCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full bg-pink-500 text-[10px] font-semibold">
-                {Math.min(unreadCount, 9)}
-              </span>
-            )}
-            <ChevronRight className={`w-4 h-4 ${isActive ? 'text-purple-400' : 'text-white/40'}`} />
-          </div>
+              <div className="flex items-center gap-2 shrink-0">
+                {item.label === "Chats" && unreadCount > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-pink-500 text-[10px] font-semibold">
+                    {Math.min(unreadCount, 9)}
+                  </span>
+                )}
+                <ChevronRight className={`w-4 h-4 ${isActive ? 'text-purple-400' : 'text-white/40'}`} />
+              </div>
             </button>
           );
         })}
@@ -175,11 +174,10 @@ export default function LeftSide() {
             <button
               key={item.label}
               onClick={() => router.push(item.path)}
-              className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-all ${
-                isActive
-                  ? 'bg-pink-500/20 text-white border border-pink-500/30'
-                  : 'text-white/70 hover:text-white hover:bg-white/5'
-              }`}
+              className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-all ${isActive
+                ? 'bg-pink-500/20 text-white border border-pink-500/30'
+                : 'text-white/70 hover:text-white hover:bg-white/5'
+                }`}
             >
               <div className="flex items-center gap-3">
                 <Icon className={`w-5 h-5 ${isActive ? 'text-pink-300' : ''}`} />
@@ -214,6 +212,13 @@ export default function LeftSide() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Footer */}
+      <div className="mt-auto p-4 border-t border-white/10">
+        <p className="text-center text-white/40 text-sm">
+          made with <span className="text-pink-400">♥</span> by vaibhav chauhan
+        </p>
       </div>
     </div>
   );

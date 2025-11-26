@@ -28,7 +28,7 @@ export default function Profile() {
     // File states
     const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
     const [bannerImageFile, setBannerImageFile] = useState<File | null>(null);
-    
+
     // Ready to listen states
     const [readyToListen, setReadyToListen] = useState(false);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -175,7 +175,7 @@ export default function Profile() {
 
     const handleToggleReadyToListen = async () => {
         if (updatingReadyToListen) return; // Prevent multiple clicks
-        
+
         if (!readyToListen) {
             // If turning on, show confirmation dialog
             setShowConfirmDialog(true);
@@ -192,29 +192,29 @@ export default function Profile() {
 
     const handleUpdateReadyToListen = async (value: boolean) => {
         if (updatingReadyToListen) return; // Prevent duplicate calls
-        
+
         setUpdatingReadyToListen(true);
         try {
             console.log("Updating readyToListen to:", value);
             const res = await updateReadyToListen(value);
             console.log("API response:", res);
-            
+
             // Get the updated value from response
             const updatedValue = res?.user?.readyToListen ?? res?.readyToListen ?? value;
-            
+
             // Update state immediately
             setReadyToListen(updatedValue);
             setProfile((prev: any) => ({
                 ...prev,
                 user: { ...prev.user, readyToListen: updatedValue },
             }));
-            
+
             toast.success(updatedValue ? "You're now open to supporting others!" : "Ready to listen status turned off");
         } catch (error: any) {
             console.error("Error updating ready to listen:", error);
             const errorMessage = error?.response?.data?.error || error?.message || "Failed to update status";
             toast.error(errorMessage);
-            
+
             // Revert state on error
             setReadyToListen(!value);
             setProfile((prev: any) => ({
@@ -245,7 +245,7 @@ export default function Profile() {
             ) : (
                 <>
                     {/* Banner */}
-                    <div className="relative w-full h-64 bg-linear-to-r from-purple-600 via-pink-500 to-purple-700 overflow-hidden group">
+                    <div className="relative w-full h-52 bg-linear-to-r from-purple-600 via-pink-500 to-purple-700 overflow-hidden group">
                         {profile?.user?.bannerImage ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img
@@ -427,11 +427,10 @@ export default function Profile() {
                                                         handleToggleReadyToListen();
                                                     }}
                                                     disabled={updatingReadyToListen}
-                                                    className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-transparent ${
-                                                        readyToListen
+                                                    className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-transparent ${readyToListen
                                                             ? "bg-linear-to-r from-purple-500 to-pink-500"
                                                             : "bg-white/20"
-                                                    } ${updatingReadyToListen ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                                                        } ${updatingReadyToListen ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
                                                 >
                                                     {updatingReadyToListen ? (
                                                         <span className="absolute inset-0 flex items-center justify-center">
@@ -439,9 +438,8 @@ export default function Profile() {
                                                         </span>
                                                     ) : (
                                                         <span
-                                                            className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
-                                                                readyToListen ? "translate-x-8" : "translate-x-1"
-                                                            }`}
+                                                            className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${readyToListen ? "translate-x-8" : "translate-x-1"
+                                                                }`}
                                                         />
                                                     )}
                                                 </button>
@@ -641,8 +639,8 @@ function ProfileVibeCard({ vibe, isOwnProfile, username, onUpdate, onDiscover }:
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                         {vibe.feelingOptions.map((feeling: string, idx: number) => (
-                            <span 
-                                key={idx} 
+                            <span
+                                key={idx}
                                 className="px-2.5 py-1 rounded-full text-xs font-medium bg-white/15 text-white/90 border border-white/20"
                                 style={{ boxShadow: `0 0 8px ${theme.accentColor}30` }}
                             >
@@ -660,7 +658,7 @@ function ProfileVibeCard({ vibe, isOwnProfile, username, onUpdate, onDiscover }:
                         <span style={{ color: theme.accentColor }}>⚡</span>
                         Availability
                     </p>
-                    <span 
+                    <span
                         className="px-3 py-1.5 rounded-lg text-sm font-medium bg-white/15 text-white border border-white/20 inline-block"
                         style={{ boxShadow: `0 0 10px ${theme.accentColor}40` }}
                     >
@@ -676,7 +674,7 @@ function ProfileVibeCard({ vibe, isOwnProfile, username, onUpdate, onDiscover }:
                         <span style={{ color: theme.accentColor }}>💭</span>
                         Today I feel like...
                     </p>
-                    <span 
+                    <span
                         className="px-3 py-1.5 rounded-lg text-sm font-medium italic bg-white/15 text-white border border-white/20 inline-block"
                         style={{ boxShadow: `0 0 10px ${theme.accentColor}40` }}
                     >

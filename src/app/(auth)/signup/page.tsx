@@ -3,8 +3,8 @@
 import Link from "next/link"
 import toast from "react-hot-toast"
 import { useRouter } from "next/navigation"
-import React, { useState } from "react"
-import { signupUser } from "../../lib/api"
+import React, { useState, useEffect, useCallback } from "react"
+import { signupUser, checkUsernameAvailability } from "../../lib/api"
 import z from "zod"
 import { Loader2, User, Mail, Lock, Check, X, Eye, EyeOff, Sparkles, ArrowRight } from "lucide-react"
 
@@ -21,6 +21,8 @@ const signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checkingUsername, setCheckingUsername] = useState(false);
+  const [usernameStatus, setUsernameStatus] = useState<'idle' | 'available' | 'taken' | 'invalid'>('idle');
 
   // Derived, live password checks for UI feedback
   const hasUpper = /[A-Z]/.test(user.password)
@@ -52,6 +54,44 @@ const signup = () => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
 
+  // Debounced username check
+  const checkUsername = useCallback(async (username: string) => {
+    if (username.length < 3) {
+      setUsernameStatus('invalid');
+      return;
+    }
+
+    setCheckingUsername(true);
+    try {
+      const res = await checkUsernameAvailability(username);
+      if (res.available) {
+        setUsernameStatus('available');
+      } else {
+        setUsernameStatus('taken');
+        toast.error('Username already taken');
+      }
+    } catch (error) {
+      console.error('Error checking username:', error);
+      setUsernameStatus('idle');
+    } finally {
+      setCheckingUsername(false);
+    }
+  }, []);
+
+  // Debounce username checking
+  useEffect(() => {
+    if (user.username.length === 0) {
+      setUsernameStatus('idle');
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      checkUsername(user.username);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [user.username, checkUsername]);
+
   // handling submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +107,7 @@ const signup = () => {
     try {
       setLoading(true);
       const res = await toast.promise(
-        signupUser(user), 
+        signupUser(user),
         {
           loading: "Creating your account...",
           success: "Account created! Check your email for verification code ✅",
@@ -75,9 +115,9 @@ const signup = () => {
         }
       );
 
-      if(res.verified){
+      if (res.verified) {
         router.push(`/login`);
-      }else{
+      } else {
         router.push(`/verifyemail?email=${encodeURIComponent(user.email)}`);
       }
 
@@ -164,8 +204,25 @@ const signup = () => {
                   onChange={handleChange}
                   placeholder="Choose a username"
                   required
-                  className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                  className={`w-full pl-12 pr-12 py-3 bg-white/10 border rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 transition-all ${user.username.length > 0
+                      ? usernameStatus === 'available'
+                        ? 'border-green-500/50 focus:ring-green-500'
+                        : usernameStatus === 'taken'
+                          ? 'border-red-500/50 focus:ring-red-500'
+                          : 'border-white/20 focus:ring-purple-500'
+                      : 'border-white/20 focus:ring-purple-500 focus:border-transparent'
+                    }`}
                 />
+                {/* Status Indicator */}
+                <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+                  {checkingUsername ? (
+                    <Loader2 className="w-5 h-5 animate-spin text-white/40" />
+                  ) : usernameStatus === 'available' ? (
+                    <Check className="w-5 h-5 text-green-400" />
+                  ) : usernameStatus === 'taken' ? (
+                    <X className="w-5 h-5 text-red-400" />
+                  ) : null}
+                </div>
               </div>
               <p className="text-xs text-white/50 mt-1">Must be at least 3 characters</p>
             </div>
@@ -260,13 +317,12 @@ const signup = () => {
                   onChange={handleChange}
                   placeholder="Re-enter your password"
                   required
-                  className={`w-full pl-12 pr-12 py-3 bg-white/10 border rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 transition-all ${
-                    user.confirmPassword
+                  className={`w-full pl-12 pr-12 py-3 bg-white/10 border rounded-xl text-white placeholder-white/40 focus:outline-none focus:ring-2 transition-all ${user.confirmPassword
                       ? passwordsMatch
                         ? 'border-green-500/50 focus:ring-green-500'
                         : 'border-red-500/50 focus:ring-red-500'
                       : 'border-white/20 focus:ring-purple-500 focus:border-transparent'
-                  }`}
+                    }`}
                 />
                 <button
                   type="button"

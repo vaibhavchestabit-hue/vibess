@@ -18,6 +18,10 @@ const messageSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isSystemMessage: {
+      type: Boolean,
+      default: false,
+    },
     read: {
       type: Boolean,
       default: false,
@@ -103,13 +107,13 @@ chatSchema.methods.checkExpiration = function () {
 // Method to unlock permanently if both users follow each other
 chatSchema.methods.checkPermanentUnlock = async function () {
   if (this.isPermanentlyUnlocked) return true;
-  
+
   const User = mongoose.model("User");
   const [user1, user2] = this.participants;
-  
+
   const user1Doc = await User.findById(user1);
   const user2Doc = await User.findById(user2);
-  
+
   if (
     user1Doc?.following?.includes(user2) &&
     user2Doc?.following?.includes(user1)

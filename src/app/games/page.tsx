@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Brain, Loader2, RefreshCw, Coins } from "lucide-react";
+import { Brain, Loader2, RefreshCw, Coins, Gamepad2 } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function GamesPage() {
@@ -12,6 +12,21 @@ export default function GamesPage() {
   // Make Your Decision game state
   const [decisionResult, setDecisionResult] = useState<string | null>(null);
   const [decisionLoading, setDecisionLoading] = useState(false);
+
+  // Rock Paper Scissors game state
+  const rpsOptions = [
+    { id: "rock", label: "Rock", emoji: "🪨" },
+    { id: "paper", label: "Paper", emoji: "📄" },
+    { id: "scissors", label: "Scissors", emoji: "✂️" },
+  ] as const;
+  type RpsOption = (typeof rpsOptions)[number]["id"];
+
+  const [playerChoice, setPlayerChoice] = useState<RpsOption | null>(null);
+  const [botChoice, setBotChoice] = useState<RpsOption | null>(null);
+  const [rpsResult, setRpsResult] = useState<string | null>(null);
+  const [playerScore, setPlayerScore] = useState(0);
+  const [botScore, setBotScore] = useState(0);
+  const [rpsLoading, setRpsLoading] = useState(false);
 
   const handleOverthink = async () => {
     setLoading(true);
@@ -59,6 +74,51 @@ export default function GamesPage() {
   const handleResetDecision = () => {
     setDecisionResult(null);
     setDecisionLoading(false);
+  };
+
+  const determineRpsWinner = (player: RpsOption, bot: RpsOption) => {
+    if (player === bot) return "It's a tie!";
+    if (
+      (player === "rock" && bot === "scissors") ||
+      (player === "paper" && bot === "rock") ||
+      (player === "scissors" && bot === "paper")
+    ) {
+      return "You win!";
+    }
+    return "Bot wins!";
+  };
+
+  const handlePlayRps = (choice: RpsOption) => {
+    if (rpsLoading) return;
+    setRpsLoading(true);
+    setPlayerChoice(choice);
+    setRpsResult(null);
+
+    setTimeout(() => {
+      const botPick = rpsOptions[Math.floor(Math.random() * rpsOptions.length)].id;
+      setBotChoice(botPick);
+      const outcome = determineRpsWinner(choice, botPick);
+      setRpsResult(outcome);
+      if (outcome === "You win!") {
+        setPlayerScore((prev) => prev + 1);
+      } else if (outcome === "Bot wins!") {
+        setBotScore((prev) => prev + 1);
+      }
+      setRpsLoading(false);
+    }, 900);
+  };
+
+  const handleResetRps = () => {
+    setPlayerChoice(null);
+    setBotChoice(null);
+    setRpsResult(null);
+    setRpsLoading(false);
+  };
+
+  const handleResetRpsScore = () => {
+    setPlayerScore(0);
+    setBotScore(0);
+    handleResetRps();
   };
 
   return (
@@ -174,6 +234,7 @@ export default function GamesPage() {
           </div>
         </div>
 
+
         {/* Make Your Decision Game */}
         <div className="space-y-6">
           <div className="rounded-3xl border border-purple-500/30 p-8 bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-sm">
@@ -269,6 +330,123 @@ export default function GamesPage() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+
+
+        {/* Rock Paper Scissors */}
+        <div className="space-y-6">
+          <div className="rounded-3xl border border-purple-500/30 p-8 bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                <Gamepad2 className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white">Rock • Paper • Scissors</h2>
+                <p className="text-white/60 text-sm">Challenge the bot and see who gets the bragging rights</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-1 bg-white/5 rounded-2xl border border-white/10 p-4 flex flex-col gap-4">
+                <div className="text-center">
+                  <p className="text-white/60 text-xs uppercase tracking-widest mb-2">Scoreboard</p>
+                  <div className="flex items-center justify-between text-white font-semibold text-lg">
+                    <div className="text-left">
+                      <p className="text-white/60 text-xs">You</p>
+                      <p className="text-2xl">{playerScore}</p>
+                    </div>
+                    <span className="text-white/40 text-sm">vs</span>
+                    <div className="text-right">
+                      <p className="text-white/60 text-xs">Bot</p>
+                      <p className="text-2xl">{botScore}</p>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={handleResetRpsScore}
+                  className="w-full py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-semibold transition-all"
+                >
+                  Reset Scoreboard
+                </button>
+                <button
+                  onClick={handleResetRps}
+                  className="w-full py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-semibold transition-all"
+                >
+                  Clear Round
+                </button>
+              </div>
+
+              <div className="lg:col-span-2 space-y-6">
+                <div>
+                  <p className="text-white/70 text-sm mb-3">Pick your weapon</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {rpsOptions.map((option) => {
+                      const isActive = playerChoice === option.id && !rpsLoading;
+                      return (
+                        <button
+                          key={option.id}
+                          onClick={() => handlePlayRps(option.id)}
+                          disabled={rpsLoading}
+                          className={`p-4 rounded-2xl border transition-all ${
+                            isActive
+                              ? "border-purple-500/60 bg-purple-500/20 text-white"
+                              : "border-white/10 bg-white/5 text-white/80 hover:border-white/30"
+                          }`}
+                        >
+                          <div className="text-3xl mb-2">{option.emoji}</div>
+                          <p className="font-semibold">{option.label}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="bg-white/5 rounded-2xl border border-white/10 p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div>
+                      <p className="text-white/50 text-xs uppercase mb-2">You Played</p>
+                      <p className="text-3xl">
+                        {playerChoice ? rpsOptions.find((o) => o.id === playerChoice)?.emoji : "❔"}
+                      </p>
+                      <p className="text-white font-semibold mt-1">
+                        {playerChoice ? rpsOptions.find((o) => o.id === playerChoice)?.label : "Waiting..."}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-white/50 text-xs uppercase mb-2">Result</p>
+                      {rpsLoading ? (
+                        <div className="flex flex-col items-center gap-2 text-white/70">
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          <span className="text-sm">Bot is thinking...</span>
+                        </div>
+                      ) : (
+                        <p
+                          className={`text-xl font-bold ${
+                            rpsResult === "You win!"
+                              ? "text-green-400"
+                              : rpsResult === "Bot wins!"
+                              ? "text-red-400"
+                              : "text-white/80"
+                          }`}
+                        >
+                          {rpsResult || "Make your move"}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-white/50 text-xs uppercase mb-2">Bot Played</p>
+                      <p className="text-3xl">
+                        {botChoice ? rpsOptions.find((o) => o.id === botChoice)?.emoji : "❔"}
+                      </p>
+                      <p className="text-white font-semibold mt-1">
+                        {botChoice ? rpsOptions.find((o) => o.id === botChoice)?.label : "Waiting..."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

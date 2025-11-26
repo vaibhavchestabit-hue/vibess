@@ -22,9 +22,9 @@ export async function GET(req: NextRequest) {
       .sort({ createdAt: -1 })
       .lean();
 
-    if (recentConfession && !Array.isArray(recentConfession) && recentConfession.createdAt) {
+    if (recentConfession) {
       const timeUntilNext = Math.ceil(
-        (new Date(recentConfession.createdAt).getTime() + 6 * 60 * 60 * 1000 - Date.now()) / (1000 * 60)
+        (new Date((recentConfession as any).createdAt).getTime() + 6 * 60 * 60 * 1000 - Date.now()) / (1000 * 60)
       );
       const hoursRemaining = Math.floor(timeUntilNext / 60);
       const minutesRemaining = timeUntilNext % 60;
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
         timeRemaining: timeUntilNext,
         hoursRemaining,
         minutesRemaining,
-        lastPostedAt: recentConfession.createdAt,
+        lastPostedAt: (recentConfession as any).createdAt,
         message: "Your heart already spoke. Come back later 🤍",
       });
     }

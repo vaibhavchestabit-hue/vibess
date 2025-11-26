@@ -43,22 +43,25 @@ export const CREATION_REASONS = [
 ] as const;
 
 // Permanent conversion voting schema
-const permanentVoteSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+const permanentVoteSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    vote: {
+      type: String,
+      enum: ["yes", "no"],
+      required: true,
+    },
+    votedAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  vote: {
-    type: String,
-    enum: ["yes", "no"],
-    required: true,
-  },
-  votedAt: {
-    type: Date,
-    default: Date.now,
-  },
-}, { _id: false });
+  { _id: false }
+);
 
 // GP Schema
 const groupSchema = new mongoose.Schema(
@@ -128,7 +131,6 @@ const groupSchema = new mongoose.Schema(
       coordinates: {
         type: [Number],
         required: true,
-        index: "2dsphere",
       },
     },
     city: {

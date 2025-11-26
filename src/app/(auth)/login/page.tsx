@@ -7,8 +7,6 @@ import { loginUser } from "../../lib/api";
 import { useUserStore } from "@/src/store/store";
 import toast from "react-hot-toast";
 import { Loader2, Mail, Lock, Eye, EyeOff, Sparkles, ArrowRight } from "lucide-react";
-import { FcGoogle } from "react-icons/fc";
-import { handleGoogleSignIn } from "../../actions/authActions";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -170,29 +168,6 @@ export default function SignInPage() {
                   <ArrowRight className="w-5 h-5" />
                 </>
               )}
-            </button>
-          </form>
-
-          {/* Divider */}
-          <div className="flex items-center gap-3 my-6">
-            <hr className="flex-1 border-white/10" />
-            <span className="text-white/40 text-sm font-medium">or</span>
-            <hr className="flex-1 border-white/10" />
-          </div>
-
-          {/* Google Sign-In */}
-          <form
-            action={async () => {
-              await handleGoogleSignIn();
-            }}
-            className="w-full"
-          >
-            <button
-              type="submit"
-              className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold transition-all flex items-center justify-center gap-3"
-            >
-              <FcGoogle className="text-xl" />
-              Sign in with Google
             </button>
           </form>
 

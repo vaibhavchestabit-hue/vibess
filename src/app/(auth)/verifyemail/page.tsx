@@ -1,5 +1,5 @@
 'use client'
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { verifyOTP } from "../../lib/api";
@@ -18,7 +18,7 @@ function VerifyEmailContent() {
     const verifyMail = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        
+
 
         if (cooldown > 0) {
             toast.error(`Please wait ${cooldown}s before trying again`);
@@ -77,8 +77,8 @@ function VerifyEmailContent() {
                     onClick={verifyMail}
                     disabled={cooldown > 0}
                     className={`w-full px-4 py-2 font-semibold rounded-xl transition duration-200 ${cooldown > 0
-                            ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                            : "bg-black text-white hover:scale-105 hover:bg-gray-800"
+                        ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                        : "bg-black text-white hover:scale-105 hover:bg-gray-800"
                         }`}
                 >
                     {cooldown > 0 ? `Wait ${cooldown}s` : "Verify OTP"}
@@ -89,18 +89,11 @@ function VerifyEmailContent() {
     );
 }
 
-export default function verifyEmail() {
+export default function VerifyEmail() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-black px-4">
-                <div className="w-full max-w-md bg-white shadow-xl rounded-2xl p-8">
-                    <h1 className="text-2xl font-bold text-center text-gray-900 mb-4">
-                        Verify Your Email
-                    </h1>
-                    <p className="text-sm text-center text-gray-600">
-                        Loading...
-                    </p>
-                </div>
+            <div className="min-h-screen flex items-center justify-center bg-black">
+                <div className="text-white">Loading...</div>
             </div>
         }>
             <VerifyEmailContent />

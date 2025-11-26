@@ -12,13 +12,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { user } = useUserStore();
   const [locationGranted, setLocationGranted] = useState(false);
   const [checkingLocation, setCheckingLocation] = useState(true);
-  
+
   // Exclude auth routes and landing page from having the sidebar and header
-  const isAuthRoute = pathname?.startsWith("/login") || 
-                      pathname?.startsWith("/signup") || 
-                      pathname?.startsWith("/verifyemail") ||
-                      pathname === "/landing";
-  
+  const isAuthRoute = pathname?.startsWith("/login") ||
+    pathname?.startsWith("/signup") ||
+    pathname?.startsWith("/verifyemail") ||
+    pathname?.startsWith("/forgot-password") ||
+    pathname?.startsWith("/reset-password") ||
+    pathname === "/landing";
+
   useEffect(() => {
     if (isAuthRoute || !user) {
       setCheckingLocation(false);
@@ -46,7 +48,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const handleLocationGranted = () => {
     setLocationGranted(true);
   };
-  
+
   if (isAuthRoute) {
     return <>{children}</>;
   }
@@ -75,7 +77,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <aside className="w-64 lg:w-72 h-screen shrink-0 border-r border-white/5 bg-[#1a0030]/50">
         <LeftSide />
       </aside>
-      
+
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden bg-[#0a0118]">
         <Header />

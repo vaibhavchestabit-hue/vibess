@@ -119,23 +119,88 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check system-level limits
-    // If total users < 5, allow 3 GPs. Otherwise, MaxActiveGroups = U / 2.5
+    // ==========================================
+    // NEW DYNAMIC LIMITS & AUTO-CLEANUP LOGIC
+    // ==========================================
+
+    // 1. Calculate System Capacity
     const activeUsersCount = await User.countDocuments({
       lastLocationUpdate: { $gte: new Date(Date.now() - 30 * 60 * 1000) }, // Active in last 30 mins
     });
 
-    const maxActiveGroups = activeUsersCount < 5 ? 3 : Math.floor(activeUsersCount / 2.5);
-    const currentActiveGroups = await Group.countDocuments({
+    let totalMaxGPs = 6; // Default for < 15 users
+    if (activeUsersCount >= 15) {
+      totalMaxGPs = Math.floor(activeUsersCount / 2.5);
+    }
+
+    // 2. Get Current Active GPs Count (Total and Per Category)
+    const allActiveGPs = await Group.find({
       status: "active",
       expiresAt: { $gt: now },
+      isPermanent: false
+    }).select("category");
+
+    const currentTotalGPs = allActiveGPs.length;
+
+    // Count empty categories (for Reservation Rule)
+    const categoryCounts: Record<string, number> = {};
+    GP_CATEGORIES.forEach(cat => categoryCounts[cat] = 0);
+
+    allActiveGPs.forEach((gp: any) => {
+      if (categoryCounts[gp.category] !== undefined) {
+        categoryCounts[gp.category]++;
+      }
     });
 
-    if (currentActiveGroups >= maxActiveGroups) {
-      return NextResponse.json(
-        { message: "Too many groups active right now. Try joining one instead." },
-        { status: 403 }
-      );
+    const emptyCategoriesCount = Object.entries(categoryCounts)
+      .filter(([cat, count]) => count === 0 && cat !== category) // Empty categories excluding target
+      .length;
+
+    // 3. Check Capacity with Reservation Rule
+    // We need to ensure that adding this GP won't prevent other empty categories from having at least 1 GP
+    // So: CurrentTotal + 1 (this new GP) + EmptyCategoriesCount <= TotalMax
+    const canCreate = (currentTotalGPs + 1 + emptyCategoriesCount) <= totalMaxGPs;
+
+    if (!canCreate) {
+      // 4. Auto-Cleanup: Try to find a weak group in THIS category to swap
+      const { findAndCloseWeakGroup } = await import("@/src/app/helpers/cleanupWeakGroups");
+      const cleaned = await findAndCloseWeakGroup(category);
+
+      if (!cleaned) {
+        // 5. Soft Rejection with Suggestions
+        // Find similar groups to suggest
+        const suggestions = await Group.find({
+          category,
+          status: "active",
+          expiresAt: { $gt: now },
+          isPermanent: false,
+          _id: { $ne: activeGPsInCategory[0]?._id } // Exclude user's own group (though they shouldn't have one here)
+        })
+          .select("subType talkTopics members description")
+          .limit(2);
+
+        const formattedSuggestions = suggestions.map((gp: any) => ({
+          id: gp._id,
+          name: `${gp.subType} + ${gp.talkTopics[0]}`,
+          members: gp.members.length,
+          description: gp.description
+        }));
+
+        return NextResponse.json({
+          success: false,
+          reason: "category_full",
+          message: "Too many groups right now. But people are leaving soon.",
+          suggestions: {
+            title: `These ${formattedSuggestions.length} groups already have ${category} vibe`,
+            groups: formattedSuggestions
+          },
+          actions: {
+            waitlist: true,
+            explore: true
+          }
+        }, { status: 403 });
+      }
+      // If cleaned is true, we proceed to create the group (swap successful)
     }
 
     // Prepare location data

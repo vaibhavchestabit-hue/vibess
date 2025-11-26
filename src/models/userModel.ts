@@ -139,6 +139,23 @@ const userSchema = new mongoose.Schema(
             type: Date,
             default: null,
         },
+        // GP Waitlist
+        gpWaitlist: [
+            {
+                category: {
+                    type: String,
+                    required: true,
+                },
+                requestedAt: {
+                    type: Date,
+                    default: Date.now,
+                },
+                notified: {
+                    type: Boolean,
+                    default: false,
+                },
+            },
+        ],
     },
     { timestamps: true }
 );

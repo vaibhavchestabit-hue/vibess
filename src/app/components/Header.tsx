@@ -8,7 +8,6 @@ import { useChatNotificationStore } from "@/src/store/chatStore";
 import { getUnreadChatCount } from "../lib/vibeApi";
 import Image from "next/image";
 import logo from "@/public/logo.png";
-
 export default function Header() {
   const router = useRouter();
   const { user } = useUserStore();
@@ -60,15 +59,19 @@ export default function Header() {
   return (
     <div className="w-full sticky top-0 z-50 backdrop-blur-lg bg-black/30 border-b border-white/10">
       <div className="flex items-center justify-between gap-3 px-6 py-4 text-white">
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-3 min-w-0">
           <Image
             src={logo}
-            alt="Landing"
-            width={50}
-            height={50}
-            className="rounded-full cursor-pointer"
+            alt="Vibess Logo"
+            width={60}
+            height={60}
+            className="rounded-full cursor-pointer object-cover"
             onClick={() => router.push("/app-home")}
+            priority
           />
+          <span className="font-semibold text-lg hidden sm:block bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+            What's Your vibe saying?
+          </span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -80,14 +83,14 @@ export default function Header() {
           >
             <Search className="h-5 w-5" />
           </button>
-          <button
+          {/* <button
             type="button"
             aria-label="Create"
             className="p-2.5 rounded-full hover:bg-white/10 active:bg-white/15 transition"
             onClick={handleCreateClick}
           >
             <Plus className="h-5 w-5" />
-          </button>
+          </button> */}
           <button
             type="button"
             aria-label="Notifications"

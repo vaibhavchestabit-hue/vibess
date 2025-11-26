@@ -7,8 +7,9 @@ import { useUserStore } from "@/src/store/store";
 import { useChatNotificationStore } from "@/src/store/chatStore";
 import { getChat, sendMessage, reportChat, blockUser, getUnreadChatCount, generateAIIcebreakers, followUserInChat } from "../../lib/vibeApi";
 import toast from "react-hot-toast";
-import { Loader2, Send, Flag, Ban, Clock, Lock, Sparkles, UserPlus, UserCheck } from "lucide-react";
+import { Loader2, Send, Flag, Ban, Clock, Lock, Sparkles, UserPlus, UserCheck, Gamepad2 } from "lucide-react";
 import Image from "next/image";
+import TicTacToe from "@/src/components/TicTacToe";
 
 const ICEBREAKER_PROMPTS = [
   "What made you choose that song?",
@@ -35,6 +36,10 @@ export default function ChatPage() {
   const [followingUser, setFollowingUser] = useState(false);
   const [aiIcebreakers, setAiIcebreakers] = useState<string[]>([]);
   const [loadingAI, setLoadingAI] = useState(false);
+  const [showGame, setShowGame] = useState(false);
+  const [gameBoard, setGameBoard] = useState<("X" | "O" | null)[]>(Array(9).fill(null));
+  const [gamePlayer, setGamePlayer] = useState<"X" | "O">("X");
+  const [gameWinner, setGameWinner] = useState<"X" | "O" | "draw" | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const icebreakersLoadedRef = useRef<boolean>(false);
@@ -55,11 +60,11 @@ export default function ChatPage() {
           });
         }
       };
-      
+
       updatePosition();
       window.addEventListener('scroll', updatePosition, true);
       window.addEventListener('resize', updatePosition);
-      
+
       return () => {
         window.removeEventListener('scroll', updatePosition, true);
         window.removeEventListener('resize', updatePosition);
@@ -73,7 +78,7 @@ export default function ChatPage() {
 
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       const target = event.target as Node;
-      
+
       // Check if click is outside both the button container and the portal menu
       if (
         reportMenuRef.current &&
@@ -167,11 +172,11 @@ export default function ChatPage() {
       if (icebreakersLoadedRef.current || !chat?.participants || chat.messages.length > 0) {
         return;
       }
-      
+
       const otherUser = chat.participants.find(
         (p: any) => p?._id?.toString() !== user?.id
       );
-      
+
       if (otherUser?._id) {
         icebreakersLoadedRef.current = true; // Mark as loading to prevent duplicates
         setLoadingAI(true);
@@ -203,9 +208,8 @@ export default function ChatPage() {
     try {
       const res = await sendMessage(chatId, message);
       if (res.success) {
-        setChat(res.chat);
         setMessageText("");
-        // Refresh chat to get updated data
+        // Refresh chat to get updated data (only set state once to prevent glitch)
         const refreshRes = await getChat(chatId);
         if (refreshRes.success) {
           setChat(refreshRes.chat);
@@ -244,7 +248,7 @@ export default function ChatPage() {
 
   const handleFollow = async () => {
     if (followingUser) return;
-    
+
     setFollowingUser(true);
     try {
       const res = await followUserInChat(chatId);
@@ -265,6 +269,75 @@ export default function ChatPage() {
       toast.error(error.response?.data?.message || "Failed to follow user");
     } finally {
       setFollowingUser(false);
+    }
+  };
+
+  const handleStartGame = async () => {
+    const gameMessage = {
+      text: "🎮 Started a Tic-Tac-Toe game!",
+      gameData: {
+        type: "tictactoe",
+        action: "start",
+        board: Array(9).fill(null),
+        currentPlayer: "X",
+        winner: null,
+      },
+    };
+
+    setSending(true);
+    try {
+      const res = await sendMessage(chatId, JSON.stringify(gameMessage));
+      if (res.success) {
+        setShowGame(true);
+        setGameBoard(Array(9).fill(null));
+        setGamePlayer("X");
+        setGameWinner(null);
+        // Refresh chat to get updated data (only set state once to prevent glitch)
+        const refreshRes = await getChat(chatId);
+        if (refreshRes.success) {
+          setChat(refreshRes.chat);
+          setTimeRemaining(refreshRes.timeRemaining);
+          refreshUnread();
+        }
+      }
+    } catch (error: any) {
+      toast.error("Failed to start game");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleGameMove = async (board: ("X" | "O" | null)[], currentPlayer: "X" | "O", winner: "X" | "O" | "draw" | null) => {
+    const gameMessage = {
+      text: `🎮 ${currentPlayer === "X" ? "O" : "X"} made a move`,
+      gameData: {
+        type: "tictactoe",
+        action: "move",
+        board,
+        currentPlayer,
+        winner,
+      },
+    };
+
+    setSending(true);
+    try {
+      const res = await sendMessage(chatId, JSON.stringify(gameMessage));
+      if (res.success) {
+        setGameBoard(board);
+        setGamePlayer(currentPlayer);
+        setGameWinner(winner);
+        // Refresh chat to get updated data (only set state once to prevent glitch)
+        const refreshRes = await getChat(chatId);
+        if (refreshRes.success) {
+          setChat(refreshRes.chat);
+          setTimeRemaining(refreshRes.timeRemaining);
+          refreshUnread();
+        }
+      }
+    } catch (error: any) {
+      toast.error("Failed to send move");
+    } finally {
+      setSending(false);
     }
   };
 
@@ -353,11 +426,10 @@ export default function ChatPage() {
               <button
                 onClick={handleFollow}
                 disabled={isFollowing || followingUser}
-                className={`px-4 py-2 rounded-full font-medium transition-all flex items-center gap-2 ${
-                  isFollowing
-                    ? "bg-green-500/20 text-green-400 border border-green-500/30 cursor-not-allowed"
-                    : "bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-                }`}
+                className={`px-4 py-2 rounded-full font-medium transition-all flex items-center gap-2 ${isFollowing
+                  ? "bg-green-500/20 text-green-400 border border-green-500/30 cursor-not-allowed"
+                  : "bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+                  }`}
               >
                 {followingUser ? (
                   <>
@@ -378,6 +450,18 @@ export default function ChatPage() {
               </button>
             )}
 
+            {/* Game Button */}
+            {!isLocked && (
+              <button
+                onClick={handleStartGame}
+                disabled={sending}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                title="Start Tic-Tac-Toe Game"
+              >
+                <Gamepad2 className="w-5 h-5 text-white/60 hover:text-purple-400" />
+              </button>
+            )}
+
             {/* Actions Menu */}
             <div ref={reportMenuRef} className="relative">
               <button
@@ -389,7 +473,7 @@ export default function ChatPage() {
               </button>
 
               {showReportMenu && typeof window !== 'undefined' && menuPosition && createPortal(
-                <div 
+                <div
                   ref={menuPortalRef}
                   className="fixed bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 p-2 min-w-[200px] z-[9999] shadow-2xl"
                   style={{
@@ -481,51 +565,92 @@ export default function ChatPage() {
           ) : (
             <div className="space-y-4">
               {chat.messages.map((msg: any, idx: number) => {
-                const isOwn = msg.sender?._id?.toString() === user?.id;
+                // More robust sender check to prevent alignment glitches
+                const senderId = msg.sender?._id?.toString() || msg.sender?._id;
+                const userId = user?.id?.toString() || user?.id;
+                const isOwn = senderId === userId;
                 const sender = msg.sender;
 
+                // Try to parse game data
+                let gameData = null;
+                let displayText = msg.text;
+                try {
+                  const parsed = JSON.parse(msg.text);
+                  if (parsed.gameData && parsed.gameData.type === "tictactoe") {
+                    gameData = parsed.gameData;
+                    displayText = parsed.text;
+                  }
+                } catch (e) {
+                  // Not a game message, use regular text
+                }
+
+                // Render system messages differently
+                if (msg.isSystemMessage) {
+                  return (
+                    <div key={idx} className="flex justify-center my-4">
+                      <div className="bg-purple-500/20 border border-purple-500/30 rounded-full px-6 py-2 backdrop-blur-sm">
+                        <p className="text-purple-200 text-sm font-medium text-center">
+                          {displayText}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                }
+
                 return (
-                  <div
-                    key={idx}
-                    className={`flex gap-3 ${isOwn ? "flex-row-reverse" : ""}`}
-                  >
-                    {!isOwn && (
-                      <div className="w-10 h-10 rounded-full overflow-hidden shrink-0">
-                        {sender?.profileImage ? (
-                          <Image
-                            src={sender.profileImage}
-                            alt={sender?.name || "User"}
-                            width={40}
-                            height={40}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm">
-                            {sender?.name?.[0] || "U"}
-                          </div>
-                        )}
+                  <div key={idx}>
+                    <div
+                      className={`flex gap-3 ${isOwn ? "flex-row-reverse" : ""}`}
+                    >
+                      {!isOwn && (
+                        <div className="w-10 h-10 rounded-full overflow-hidden shrink-0">
+                          {sender?.profileImage ? (
+                            <Image
+                              src={sender.profileImage}
+                              alt={sender?.name || "User"}
+                              width={40}
+                              height={40}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm">
+                              {sender?.name?.[0] || "U"}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      <div className={`max-w-[70%] ${isOwn ? "text-right" : ""}`}>
+                        <div
+                          className={`inline-block px-4 py-2 rounded-2xl ${isOwn
+                            ? "bg-linear-to-r from-purple-500 to-pink-500 text-white"
+                            : "bg-white/10 text-white"
+                            }`}
+                        >
+                          <p className="text-sm">{displayText}</p>
+                          {msg.isIcebreaker && (
+                            <span className="text-xs opacity-70 ml-2">💬</span>
+                          )}
+                        </div>
+                        <p className="text-white/40 text-xs mt-1 px-2">
+                          {new Date(msg.createdAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Render game board if this is a game message */}
+                    {gameData && (
+                      <div className="mt-4 mb-2">
+                        <TicTacToe
+                          initialBoard={gameData.board}
+                          initialPlayer={gameData.currentPlayer}
+                          onMove={handleGameMove}
+                          playerSymbol={isOwn ? (gameData.currentPlayer === "X" ? "O" : "X") : gameData.currentPlayer}
+                        />
                       </div>
                     )}
-                    <div className={`max-w-[70%] ${isOwn ? "text-right" : ""}`}>
-                      <div
-                        className={`inline-block px-4 py-2 rounded-2xl ${
-                      isOwn
-                        ? "bg-linear-to-r from-purple-500 to-pink-500 text-white"
-                        : "bg-white/10 text-white"
-                        }`}
-                      >
-                        <p className="text-sm">{msg.text}</p>
-                        {msg.isIcebreaker && (
-                          <span className="text-xs opacity-70 ml-2">💬</span>
-                        )}
-                      </div>
-                      <p className="text-white/40 text-xs mt-1 px-2">
-                        {new Date(msg.createdAt).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </p>
-                    </div>
                   </div>
                 );
               })}

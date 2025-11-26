@@ -21,7 +21,7 @@ export function ExpandableCard({
   const [active, setActive] = useState<ExpandableCardItem | boolean | null>(
     null
   );
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement | null>(null);
   const id = useId();
 
   useEffect(() => {
