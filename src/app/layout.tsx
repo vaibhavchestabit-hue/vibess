@@ -4,6 +4,7 @@ import { Poppins } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import VibeRefreshReminder from "./components/VibeRefreshReminder";
 import AppLayout from "./components/AppLayout";
+import GlobalNotificationManager from "@/src/components/GlobalNotificationManager";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -37,6 +38,7 @@ export default function RootLayout({
         <AppLayout>{children}</AppLayout>
         <Toaster/>
         <VibeRefreshReminder />
+        <GlobalNotificationManager />
       </body>
     </html>
   );

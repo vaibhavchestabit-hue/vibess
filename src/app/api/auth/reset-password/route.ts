@@ -40,10 +40,12 @@ export async function POST(req: NextRequest) {
         }
 
         // Hash new password
+        console.log("New Password:", newPassword);
         const salt = await bcryptjs.genSalt(10);
         const hashedPassword = await bcryptjs.hash(newPassword, salt);
 
         // Update user
+        console.log("User:", user);
         user.password = hashedPassword;
         user.otp = undefined;
         user.otpExpires = undefined;

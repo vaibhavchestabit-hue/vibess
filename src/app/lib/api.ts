@@ -279,6 +279,18 @@ export async function updateReadyToListen(readyToListen: boolean) {
   }
 }
 
+////////// update notifications preference
+
+export async function updateNotifications(notificationsEnabled: boolean) {
+  try {
+    const res = await axios.patch("/api/user/notifications", { notificationsEnabled });
+    return res.data;
+  } catch (error: any) {
+    console.error("Error updating notifications:", error);
+    throw error;
+  }
+}
+
 ////////// Fetch Jokes from RapidAPI (via our API route)
 
 export async function fetchJoke() {

@@ -76,7 +76,7 @@ export default function LandingPage() {
             How It Works
           </h2>
           <div className="grid md:grid-cols-4 gap-8">
-   {[
+            {[
               {
                 step: "1",
                 icon: Sparkles,
@@ -108,7 +108,7 @@ export default function LandingPage() {
                   key={idx}
                   className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-purple-500/50 transition-all hover:scale-105"
                 >
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mb-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center between mb-4">
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                   <div className="text-purple-400 font-bold text-sm mb-2">Step {item.step}</div>
@@ -334,6 +334,7 @@ export default function LandingPage() {
       <footer className="relative z-10 py-12 px-4 border-t border-white/10">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-white/60 text-sm">
           <div className="text-white font-bold text-lg">Vibess</div>
+          <div className="text-white font-bold text-lg">Made with ❤️ by Vaibhav Chauhan</div>
           <div className="flex gap-6">
             <Link href="/about" className="hover:text-white transition-colors">
               About

@@ -19,18 +19,65 @@ export async function GET(req: NextRequest) {
       { messages: 1 }
     ).lean();
 
+    let latestUnreadMessage = null;
+
     const unreadCount = chats.reduce((count, chat) => {
-      const hasUnread = (chat.messages || []).some((msg: any) => {
+      const unreadMessages = (chat.messages || []).filter((msg: any) => {
         const senderId =
           typeof msg.sender === "string"
             ? msg.sender
             : msg.sender?._id?.toString?.() ?? msg.sender?.toString?.();
         return senderId && senderId !== userIdStr && !msg.read;
       });
-      return hasUnread ? count + 1 : count;
+
+      if (unreadMessages.length > 0) {
+        // Find the most recent unread message across all chats
+        const lastMsg = unreadMessages[unreadMessages.length - 1];
+        if (!latestUnreadMessage || new Date(lastMsg.createdAt) > new Date(latestUnreadMessage.createdAt)) {
+          latestUnreadMessage = lastMsg;
+        }
+      }
+
+      return count + unreadMessages.length;
     }, 0);
 
-    return NextResponse.json({ success: true, unreadCount });
+    // If we have a latest message, we need to populate sender details if they aren't already
+    if (latestUnreadMessage) {
+      // If sender is just an ID, we might need to fetch it, but let's see if we can populate it in the query first
+      // For now, let's assume we need to populate it if it's missing
+    }
+
+    // Re-fetch with population if we have unread messages to get sender details efficiently
+    // Or better, update the initial query to populate sender
+    const chatsWithSender = await Chat.find(
+      { participants: user._id },
+      { messages: 1 }
+    )
+    .populate("messages.sender", "name profileImage")
+    .lean();
+
+    // Re-calculate with populated data to get correct sender info for the notification
+    let latestMessageData = null;
+    
+    chatsWithSender.forEach((chat) => {
+      const unreadMsgs = (chat.messages || []).filter((msg: any) => {
+        const senderId = msg.sender?._id?.toString() || msg.sender?.toString();
+        return senderId && senderId !== userIdStr && !msg.read;
+      });
+      
+      if (unreadMsgs.length > 0) {
+        const last = unreadMsgs[unreadMsgs.length - 1];
+        if (!latestMessageData || new Date(last.createdAt) > new Date(latestMessageData.createdAt)) {
+          latestMessageData = last;
+        }
+      }
+    });
+
+    return NextResponse.json({ 
+      success: true, 
+      unreadCount,
+      latestMessage: latestMessageData 
+    });
   } catch (error: any) {
     console.error("Error fetching unread count:", error);
     return NextResponse.json(

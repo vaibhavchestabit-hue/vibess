@@ -1,6 +1,6 @@
 "use client";
 
-import { getUserProfile, logoutUser, updateUserProfile, updateReadyToListen } from "../../lib/api";
+import { getUserProfile, logoutUser, updateUserProfile, updateReadyToListen, updateNotifications } from "../../lib/api";
 import { getUserVibe } from "../../lib/vibeApi";
 import toast from "react-hot-toast";
 import { useUserStore } from "@/src/store/store";
@@ -34,6 +34,10 @@ export default function Profile() {
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [updatingReadyToListen, setUpdatingReadyToListen] = useState(false);
 
+    // Notification states
+    const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+    const [updatingNotifications, setUpdatingNotifications] = useState(false);
+
     // Check if viewing own profile
     //   const isOwnProfile = currentUser?._id === profile?.user?._id;
     const isOwnProfile = true;
@@ -52,6 +56,7 @@ export default function Profile() {
                 setEditedBio(data?.user?.bio || "");
                 setEditedName(data?.user?.name || "");
                 setReadyToListen(data?.user?.readyToListen || false);
+                setNotificationsEnabled(data?.user?.notificationsEnabled || false);
             } catch (e: any) {
                 setErrorMsg(e?.message || "Failed to load profile");
             } finally {
@@ -223,6 +228,53 @@ export default function Profile() {
             }));
         } finally {
             setUpdatingReadyToListen(false);
+        }
+    };
+
+    const handleToggleNotifications = async () => {
+        if (updatingNotifications) return;
+
+        // Request browser permission when enabling
+        if (!notificationsEnabled) {
+            const { requestNotificationPermission } = await import("../../lib/notifications");
+            const permission = await requestNotificationPermission();
+            
+            if (permission !== "granted") {
+                toast.error("Please allow notifications in your browser to enable this feature");
+                return;
+            }
+        }
+
+        await handleUpdateNotifications(!notificationsEnabled);
+    };
+
+    const handleUpdateNotifications = async (value: boolean) => {
+        if (updatingNotifications) return;
+
+        setUpdatingNotifications(true);
+        try {
+            const res = await updateNotifications(value);
+            const updatedValue = res?.user?.notificationsEnabled ?? res?.notificationsEnabled ?? value;
+
+            setNotificationsEnabled(updatedValue);
+            setProfile((prev: any) => ({
+                ...prev,
+                user: { ...prev.user, notificationsEnabled: updatedValue },
+            }));
+
+            toast.success(updatedValue ? "Notifications enabled!" : "Notifications disabled!");
+        } catch (error: any) {
+            console.error("Error updating notifications:", error);
+            const errorMessage = error?.response?.data?.error || error?.message || "Failed to update notifications";
+            toast.error(errorMessage);
+
+            setNotificationsEnabled(!value);
+            setProfile((prev: any) => ({
+                ...prev,
+                user: { ...prev.user, notificationsEnabled: !value },
+            }));
+        } finally {
+            setUpdatingNotifications(false);
         }
     };
 
@@ -451,8 +503,14 @@ export default function Profile() {
                                         </div>
                                     </div>
                                 </div>
+
+
                             )}
 
+                            <div className="mt-8 pt-8 border-t border-white/10">
+                            <h2 className="text-white font-bold text-xl mb-4">Notifications</h2>
+                                <button onClick= {handleToggleNotifications} className="px-6 py-2.5 rounded-lg cursor-pointer bg-linear-to-r from-purple-500 to-pink-500 text-white">   {notificationsEnabled ? "Enabled" : "Disabled"}</button>
+                                </div>
                             <VibeHighlight
                                 loading={vibeLoading}
                                 vibe={userVibe}

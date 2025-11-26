@@ -353,11 +353,10 @@ export default function GroupChatPage() {
                         </p>
                       )}
                       <div
-                        className={`inline-block px-4 py-2 rounded-2xl ${
-                          isOwn
-                            ? "bg-linear-to-r from-purple-500 to-pink-500 text-white"
-                            : "bg-white/10 text-white"
-                        }`}
+                        className={`inline-block px-4 py-2 rounded-2xl ${isOwn
+                          ? "bg-linear-to-r from-purple-500 to-pink-500 text-white"
+                          : "bg-white/10 text-white"
+                          }`}
                       >
                         <p className="text-sm">{msg.text}</p>
                       </div>
