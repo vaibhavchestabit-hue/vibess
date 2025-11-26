@@ -76,29 +76,29 @@ export default function LandingPage() {
             How It Works
           </h2>
           <div className="grid md:grid-cols-4 gap-8">
-            {[
+   {[
               {
                 step: "1",
                 icon: Sparkles,
-                title: "Create your Vibe Card",
+                title: "Create your Vibe Card 🎨",
                 description: "Set your mood emoji, vibe line, energy level, intention, comfort topic.",
               },
               {
                 step: "2",
                 icon: Users,
-                title: "Match with People",
+                title: "Match with People 🤝",
                 description: "See users with similar vibes, energy, or needs on your wavelength.",
               },
               {
                 step: "3",
                 icon: MessageCircle,
-                title: "24-Hour Chat Window",
+                title: "24-Hour Chat Window 📢",
                 description: "You match → you chat → no pressure to continue forever.",
               },
               {
                 step: "4",
                 icon: Heart,
-                title: "Have Fun or Feel Heard",
+                title: "Have Fun or Feel Heard 🎉",
                 description: "Laugh. Vent. Share nonsense. Make a friend.",
               },
             ].map((item, idx) => {
