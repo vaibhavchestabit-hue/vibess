@@ -213,7 +213,7 @@ export default function GroupChatPage() {
   }
 
   return (
-    <div className="h-full w-full bg-linear-to-br from-[#0a0118] via-[#1d0033] to-[#2a0044] flex flex-col">
+    <div className="min-h-full w-full bg-linear-to-br from-[#0a0118] via-[#1d0033] to-[#2a0044] flex flex-col">
       <div className="max-w-6xl w-full mx-auto flex-1 flex flex-col px-4 py-6 gap-4">
         <button
           onClick={() => router.push("/groups")}
