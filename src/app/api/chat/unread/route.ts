@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
       { messages: 1 }
     ).lean();
 
-    let latestUnreadMessage:any = null;
+    let latestUnreadMessage:any= null;
 
     const unreadCount = chats.reduce((count, chat) => {
       const unreadMessages = (chat.messages || []).filter((msg: any) => {
@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
     .lean();
 
     // Re-calculate with populated data to get correct sender info for the notification
-    let latestMessageData = null;
+    let latestMessageData: any = null;
     
     chatsWithSender.forEach((chat) => {
       const unreadMsgs = (chat.messages || []).filter((msg: any) => {
