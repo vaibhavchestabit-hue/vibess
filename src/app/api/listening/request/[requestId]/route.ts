@@ -33,9 +33,7 @@ export async function GET(
       return NextResponse.json({ error: "Request ID is required" }, { status: 400 });
     }
 
-    const request = await ListeningRequest.findById(requestId)
-      .populate("interestedListeners", "name username profileImage trustScore listenerBadges")
-      .lean();
+    const request: any = await ListeningRequest.findById(requestId).populate("interestedListeners", "name username profileImage trustScore listenerBadges").lean();
 
     if (!request) {
       return NextResponse.json({ error: "Request not found" }, { status: 404 });
