@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { MessageCircle, Send, Flag, Loader2, Heart, Clock } from "lucide-react";
+import { MessageCircle, Send, Flag, Loader2, Heart, Clock, Ghost } from "lucide-react";
 import toast from "react-hot-toast";
 import { createConfession, getConfessionsWall, reportConfession, checkConfessionLimit } from "../lib/api";
 
@@ -203,7 +203,8 @@ export default function WhisperSpacePage() {
         {/* Header */}
         <div className="text-center space-y-3 mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 mb-4">
-            <MessageCircle className="w-8 h-8 text-purple-400" />
+            {/* <MessageCircle className="w-8 h-8 text-purple-400" /> */}
+            <Ghost className="w-8 h-8 text-purple-400" />
           </div>
           <h1 className="text-4xl font-bold text-white">Whisper Space</h1>
           <p className="text-white/70 text-lg leading-relaxed">

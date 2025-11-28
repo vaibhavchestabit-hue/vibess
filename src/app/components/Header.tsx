@@ -8,6 +8,7 @@ import { useChatNotificationStore } from "@/src/store/chatStore";
 import { getUnreadChatCount } from "../lib/vibeApi";
 import Image from "next/image";
 import logo from "@/public/logo.png";
+import toast from "react-hot-toast";
 export default function Header() {
   const router = useRouter();
   const { user } = useUserStore();
@@ -94,6 +95,7 @@ export default function Header() {
           <button
             type="button"
             aria-label="Notifications"
+            onClick={() => toast("Enable notifications to get new messages from Profile")}
             className="p-2.5 rounded-full hover:bg-white/10 active:bg-white/15 transition relative"
           >
             <Bell className="h-5 w-5" />

@@ -243,7 +243,7 @@ const vibeCardSchema = new mongoose.Schema(
 
 // Indexes
 vibeCardSchema.index({ user: 1, isActive: 1 });
-vibeCardSchema.index({ "location.coordinates": "2dsphere" });
+vibeCardSchema.index({ location: "2dsphere" });
 vibeCardSchema.index({ "vibeScore.mood": 1, "vibeScore.energy": 1 });
 vibeCardSchema.index({ energyLevel: 1, currentIntent: 1, interactionBoundary: 1 });
 

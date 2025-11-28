@@ -3,6 +3,8 @@ import connectDB from "@/src/app/config/dbconfig";
 import Chat from "@/src/models/chatModel";
 import getUserFromToken from "@/src/app/helpers/getUserFromToken";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     await connectDB();

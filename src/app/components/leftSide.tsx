@@ -17,6 +17,9 @@ import {
   MessageCircle,
   Lightbulb,
   Loader2,
+  Info,
+  Ghost,
+  Headphones
 } from "lucide-react";
 
 export default function LeftSide() {
@@ -82,9 +85,10 @@ export default function LeftSide() {
     { icon: Compass, label: "Discover", path: "/app-home" },
     { icon: Search, label: "Explore", path: "/explore" },
     { icon: MessageCircle, label: "Chats", path: "/chat" },
+    { icon: Headphones, label: "Listening", path: "/listening" },
     { icon: Users, label: "Chat Rooms", path: "/chat-room" },
     { icon: FileText, label: "Groups", path: "/groups" },
-    { icon: MessageCircle, label: "Whisper Space", path: "/whisper-space" },
+    { icon: Ghost, label: "Whisper Space", path: "/whisper-space" },
     { icon: Gamepad2, label: "Games", path: "/games" },
   ];
 
@@ -212,6 +216,21 @@ export default function LeftSide() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Help & Info Section */}
+      <div className="p-4 space-y-2 border-t border-white/10">
+        <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider px-3 mb-2">HELP & INFO</h3>
+        <button
+          onClick={() => router.push('/about')}
+          className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-all text-white/70 hover:text-white hover:bg-white/5"
+        >
+          <div className="flex items-center gap-3">
+            <Info className="w-5 h-5" />
+            <span className="text-sm font-medium">Learn About Site</span>
+          </div>
+          <ChevronRight className="w-4 h-4 text-white/40" />
+        </button>
       </div>
 
       {/* Footer */}

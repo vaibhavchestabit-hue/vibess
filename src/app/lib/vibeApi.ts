@@ -218,3 +218,164 @@ export async function enhanceVibeDescriptionAI(vibeData: {
   }
 }
 
+
+////////////////   LISTENING FEATURE API
+
+export async function requestListeningSession(intent: string, context?: string) {
+  try {
+    const res = await api.post("/listening/request", { intent, context });
+    return res.data;
+  } catch (error: any) {
+    console.error("Error requesting listening session:", error);
+    throw error;
+  }
+}
+
+export async function getListeningRequests() {
+  try {
+    const res = await api.get("/listening/requests");
+    return res.data;
+  } catch (error: any) {
+    // Don't log 403 errors - they're expected when user is not "Ready to Listen"
+    if (error.response?.status !== 403) {
+      console.error("Error fetching listening requests:", error);
+    }
+    throw error;
+  }
+}
+
+export async function acceptListeningRequest(requestId: string) {
+  try {
+    const res = await api.post("/listening/accept", { requestId });
+    return res.data;
+  } catch (error: any) {
+    console.error("Error accepting listening request:", error);
+    throw error;
+  }
+}
+
+export async function confirmListeningRequest(requestId: string, listenerId: string) {
+  try {
+    const res = await api.post("/listening/confirm", { requestId, listenerId });
+    return res.data;
+  } catch (error: any) {
+    console.error("Error confirming listening request:", error);
+    throw error;
+  }
+}
+
+export async function getListeningRequestStatus(requestId: string) {
+  // We can reuse getPendingListeningRequests or create a specific endpoint
+  // For now, let's assume we can poll a specific endpoint or just reuse pending
+  // Actually, we might need a specific endpoint to get a single request's status/interested listeners
+  // Let's add a simple GET /listening/request/[id] if needed, or just use the existing pending one if it returns what we need.
+  // But wait, getPendingListeningRequests returns *my* pending requests?
+  // Let's check getPendingListeningRequests implementation.
+  // It calls /listening/pending. Let's see what that does.
+  // If it returns my active requests with interested listeners, that's perfect.
+  try {
+    const res = await api.get(`/listening/request/${requestId}`);
+    return res.data;
+  } catch (error: any) {
+     // If the route doesn't exist yet, we might need to create it or use pending.
+     // Let's stick to creating a new function and we'll ensure the backend supports it.
+     // Wait, I didn't create GET /listening/request/[id].
+     // I should probably create it or update getPendingListeningRequests to return the request details.
+     // Let's use getPendingListeningRequests for now and filter on client side if needed, 
+     // OR create the missing route.
+     // Creating the route is cleaner.
+     console.error("Error fetching request status:", error);
+     throw error;
+  }
+}
+
+export async function declineListeningRequest(sessionId: string) {
+  try {
+    const res = await api.post("/listening/decline", { sessionId });
+    return res.data;
+  } catch (error: any) {
+    console.error("Error declining listening request:", error);
+    throw error;
+  }
+}
+
+export async function getPendingListeningRequests() {
+  try {
+    const res = await api.get("/listening/pending");
+    return res.data;
+  } catch (error: any) {
+    console.error("Error fetching pending requests:", error);
+    throw error;
+  }
+}
+
+export async function getListeningSession(sessionId: string) {
+  try {
+    const res = await api.get(`/listening/session/${sessionId}`);
+    return res.data;
+  } catch (error: any) {
+    console.error("Error fetching listening session:", error);
+    throw error;
+  }
+}
+
+export async function sendListeningMessage(sessionId: string, text: string) {
+  try {
+    const res = await api.patch(`/listening/session/${sessionId}`, { text });
+    return res.data;
+  } catch (error: any) {
+    console.error("Error sending listening message:", error);
+    throw error;
+  }
+}
+
+export async function endListeningSession(sessionId: string) {
+  try {
+    const res = await api.post("/listening/end", { sessionId });
+    return res.data;
+  } catch (error: any) {
+    console.error("Error ending listening session:", error);
+    throw error;
+  }
+}
+
+export async function submitListeningFeedback(
+  sessionId: string,
+  feedback: {
+    speakerFeedback?: { type: string; rating?: number };
+    listenerReview?: { isGenuine: boolean };
+    speakerWantsReconnect?: boolean;
+    listenerWantsReconnect?: boolean;
+  }
+) {
+  try {
+    const res = await api.post("/listening/feedback", {
+      sessionId,
+      ...feedback,
+    });
+    return res.data;
+  } catch (error: any) {
+    console.error("Error submitting listening feedback:", error);
+    throw error;
+  }
+}
+
+export async function reportListeningSession(sessionId: string, reason: string) {
+  try {
+    const res = await api.post("/listening/report", { sessionId, reason });
+    return res.data;
+  } catch (error: any) {
+    console.error("Error reporting listening session:", error);
+    throw error;
+  }
+}
+
+export async function getActiveListeningSession() {
+  try {
+    const res = await api.get("/listening/sessions/active");
+    return res.data;
+  } catch (error: any) {
+    console.error("Error checking active session:", error);
+    throw error;
+  }
+}

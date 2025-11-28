@@ -7,6 +7,7 @@ import { useUserStore } from "@/src/store/store";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Edit, Camera, X, Check, Sparkles, Loader2 } from "lucide-react";
+import TrustScoreDisplay from "../../components/listening/TrustScoreDisplay";
 
 export default function Profile() {
     const router = useRouter();
@@ -320,7 +321,7 @@ export default function Profile() {
                             </button>
                         </div>
 
-                        {isOwnProfile && (
+                        {isOwnProfile && isEditMode && (
                             <button
                                 onClick={() => handleImageUpload("banner")}
                                 className="absolute top-4 left-4 z-10 p-3 bg-black/40 backdrop-blur-md hover:bg-black/60 text-white rounded-full transition-all duration-300 border border-white/20 opacity-0 group-hover:opacity-100"
@@ -354,7 +355,7 @@ export default function Profile() {
                                         )}
                                     </div>
 
-                                    {isOwnProfile && (
+                                    {isOwnProfile && isEditMode && (
                                         <button
                                             onClick={() => handleImageUpload("profile")}
                                             className="absolute bottom-2 right-2 p-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-full transition-all duration-300 shadow-lg opacity-0 group-hover:opacity-100"
@@ -465,52 +466,34 @@ export default function Profile() {
                                 </div>
                             </div>
 
-                            {/* Ready to Listen Toggle */}
-                            {isOwnProfile && (
-                                <div className="mt-8 pt-8 border-t border-white/10">
-                                    <div className="flex items-start gap-4">
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        e.stopPropagation();
-                                                        handleToggleReadyToListen();
-                                                    }}
-                                                    disabled={updatingReadyToListen}
-                                                    className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-transparent ${readyToListen
-                                                            ? "bg-linear-to-r from-purple-500 to-pink-500"
-                                                            : "bg-white/20"
-                                                        } ${updatingReadyToListen ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-                                                >
-                                                    {updatingReadyToListen ? (
-                                                        <span className="absolute inset-0 flex items-center justify-center">
-                                                            <Loader2 className="w-4 h-4 animate-spin text-white" />
-                                                        </span>
-                                                    ) : (
-                                                        <span
-                                                            className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${readyToListen ? "translate-x-8" : "translate-x-1"
-                                                                }`}
-                                                        />
-                                                    )}
-                                                </button>
-                                                <span className="text-white font-semibold text-lg">Ready to Listen</span>
-                                            </div>
-                                            <p className="text-white/60 text-sm ml-20">
-                                                People who need calm company can be matched with you.
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                            )}
-
+                            {/* Notifications Section */}
                             <div className="mt-8 pt-8 border-t border-white/10">
                             <h2 className="text-white font-bold text-xl mb-4">Notifications</h2>
                                 <button onClick= {handleToggleNotifications} className="px-6 py-2.5 rounded-lg cursor-pointer bg-linear-to-r from-purple-500 to-pink-500 text-white">   {notificationsEnabled ? "Enabled" : "Disabled"}</button>
                                 </div>
+
+
+
+                            {/* Trust Score & Listening Stats */}
+                            {isOwnProfile && profile?.user?.sessionStats && (
+                                <div className="mt-8 pt-8 border-t border-white/10">
+                                    <h2 className="text-white font-bold text-xl mb-4">Listening Profile</h2>
+                                    <TrustScoreDisplay
+                                        trustScore={profile.user.trustScore || 75}
+                                        sessionStats={profile.user.sessionStats || {
+                                            totalSessions: 0,
+                                            positiveSessions: 0,
+                                            negativeSessions: 0,
+                                            neutralSessions: 0,
+                                        }}
+                                        listenerBadges={profile.user.listenerBadges || {
+                                            level: 0,
+                                            title: "New Listener",
+                                        }}
+                                    />
+                                </div>
+                            )}
+
                             <VibeHighlight
                                 loading={vibeLoading}
                                 vibe={userVibe}

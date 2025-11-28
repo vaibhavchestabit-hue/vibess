@@ -39,26 +39,30 @@ export default function GlobalNotificationManager() {
           // 1. Not initial load (don't spam on refresh)
           // 2. It's a new message we haven't seen in this session
           // 3. The tab is hidden (background)
-          if (
-            !isInitialLoadRef.current &&
-            msgId !== lastMessageIdRef.current &&
-            document.hidden
-          ) {
-            
-            let displayText = msg.text;
-            try {
-              const parsed = JSON.parse(msg.text);
-              if (parsed.gameData) {
-                displayText = parsed.text;
-              }
-            } catch (e) {
-              // Not a game message
-            }
+          const isHidden = document.hidden;
+          const isNewMessage = msgId !== lastMessageIdRef.current;
+          const isNotInitial = !isInitialLoadRef.current;
 
-            showChatNotification(
-              { text: displayText },
-              msg.sender?.name || "Someone"
-            );
+          if (isNotInitial && isNewMessage) {
+             console.log(`[NotificationManager] New message detected. Hidden: ${isHidden}, ID: ${msgId}`);
+             if (isHidden) {
+                let displayText = msg.text;
+                try {
+                  const parsed = JSON.parse(msg.text);
+                  if (parsed.gameData) {
+                    displayText = parsed.text;
+                  }
+                } catch (e) {
+                  // Not a game message
+                }
+
+                showChatNotification(
+                  { text: displayText },
+                  msg.sender?.name || "Someone"
+                );
+             } else {
+                console.log("[NotificationManager] Tab is visible, skipping notification.");
+             }
           }
 
           lastMessageIdRef.current = msgId;

@@ -160,6 +160,100 @@ const userSchema = new mongoose.Schema(
                 },
             },
         ],
+        // ✅ Listening Feature - Trust Score System
+        trustScore: {
+            type: Number,
+            default: 75,
+            min: 0,
+            max: 150,
+        },
+        sessionStats: {
+            totalSessions: {
+                type: Number,
+                default: 0,
+            },
+            positiveSessions: {
+                type: Number,
+                default: 0,
+            },
+            negativeSessions: {
+                type: Number,
+                default: 0,
+            },
+            neutralSessions: {
+                type: Number,
+                default: 0,
+            },
+        },
+        listenerBadges: {
+            level: {
+                type: Number,
+                default: 0,
+            },
+            title: {
+                type: String,
+                default: "New Listener",
+            },
+        },
+        // ✅ Listening Feature - Usage Limits & Cooldowns
+        listeningUsage: {
+            dailySessions: {
+                type: Number,
+                default: 0,
+            },
+            lastSessionDate: {
+                type: Date,
+                default: null,
+            },
+            consecutiveDays: {
+                type: Number,
+                default: 0,
+            },
+            lastConsecutiveDate: {
+                type: Date,
+                default: null,
+            },
+        },
+        listeningCooldownUntil: {
+            type: Date,
+            default: null,
+        },
+        // ✅ Listening Feature - Misuse Prevention
+        misuseTracking: {
+            notGenuineReports: {
+                type: Number,
+                default: 0,
+            },
+            reportedBy: [
+                {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "User",
+                },
+            ],
+            blockedUntil: {
+                type: Date,
+                default: null,
+            },
+        },
+        // ✅ Listening Feature - Continuity Preferences
+        preferredListeners: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+            },
+        ],
+        // ✅ Listening Feature - Negative Feedback Cooldowns
+        negativeFeedbackCooldowns: [
+            {
+                userId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "User",
+                },
+                cooldownUntil: {
+                    type: Date,
+                },
+            },
+        ],
     },
     { timestamps: true }
 );
