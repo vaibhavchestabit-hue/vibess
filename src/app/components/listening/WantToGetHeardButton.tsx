@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Headphones, X, Loader2, Clock, CheckCircle, Shield } from "lucide-react";
-import { requestListeningSession, getListeningRequestStatus, confirmListeningRequest } from "../../lib/vibeApi";
+import { requestListeningSession, getListeningRequestStatus, confirmListeningRequest, getActiveListeningRequest, cancelListeningRequest } from "../../lib/vibeApi";
 import { useUserStore } from "@/src/store/store";
 import toast from "react-hot-toast";
 import Image from "next/image";
@@ -31,6 +31,26 @@ export default function WantToGetHeardButton() {
   const [activeRequestId, setActiveRequestId] = useState<string | null>(null);
   const [interestedListeners, setInterestedListeners] = useState<InterestedListener[]>([]);
   const [confirmingListenerId, setConfirmingListenerId] = useState<string | null>(null);
+
+  // Check for active request on mount
+  useEffect(() => {
+    const checkActiveRequest = async () => {
+      try {
+        const response = await getActiveListeningRequest();
+        if (response.success && response.request) {
+          setActiveRequestId(response.request._id);
+          setStep("waiting");
+          // Don't auto-open, let user click the button to see status
+          // But if we want to be aggressive we could setIsOpen(true)
+          // For now, just restore state so when they click it shows waiting
+        }
+      } catch (error) {
+        console.error("Error checking active request:", error);
+      }
+    };
+
+    checkActiveRequest();
+  }, []);
 
   // Poll for interested listeners when in waiting step
   useEffect(() => {
@@ -198,13 +218,31 @@ export default function WantToGetHeardButton() {
             </div>
             
             <button
-              onClick={() => {
-                setStep("intent");
-                setActiveRequestId(null);
+              onClick={async () => {
+                try {
+                  setLoading(true);
+                  await cancelListeningRequest();
+                  setStep("intent");
+                  setActiveRequestId(null);
+                  toast.success("Request cancelled");
+                } catch (error) {
+                  console.error("Error cancelling request:", error);
+                  toast.error("Failed to cancel request");
+                } finally {
+                  setLoading(false);
+                }
               }}
-              className="w-full py-3 rounded-xl bg-white/5 text-white/60 hover:text-white hover:bg-white/10 font-medium transition-all"
+              disabled={loading}
+              className="w-full py-3 rounded-xl bg-white/5 text-white/60 hover:text-white hover:bg-white/10 font-medium transition-all disabled:opacity-50"
             >
-              Cancel Request
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Cancelling...
+                </span>
+              ) : (
+                "Cancel Request"
+              )}
             </button>
           </div>
         </div>

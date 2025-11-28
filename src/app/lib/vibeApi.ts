@@ -221,12 +221,36 @@ export async function enhanceVibeDescriptionAI(vibeData: {
 
 ////////////////   LISTENING FEATURE API
 
+
 export async function requestListeningSession(intent: string, context?: string) {
   try {
     const res = await api.post("/listening/request", { intent, context });
     return res.data;
   } catch (error: any) {
     console.error("Error requesting listening session:", error);
+    throw error;
+  }
+}
+
+export async function getActiveListeningRequest() {
+  try {
+    const res = await api.get("/listening/request");
+    return res.data;
+  } catch (error: any) {
+    // Don't log 404 errors - they're expected when no request exists
+    if (error.response?.status !== 404) {
+      console.error("Error fetching active listening request:", error);
+    }
+    throw error;
+  }
+}
+
+export async function cancelListeningRequest() {
+  try {
+    const res = await api.delete("/listening/request");
+    return res.data;
+  } catch (error: any) {
+    console.error("Error cancelling listening request:", error);
     throw error;
   }
 }

@@ -19,10 +19,11 @@ import {
   Loader2,
   Info,
   Ghost,
-  Headphones
+  Headphones,
+  X
 } from "lucide-react";
 
-export default function LeftSide() {
+export default function LeftSide({ onClose }: { onClose?: () => void }) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, setUser } = useUserStore();
@@ -107,14 +108,14 @@ export default function LeftSide() {
 
 
   return (
-    <div className="flex flex-col h-full w-full bg-[#1a0030]/80 backdrop-blur-sm overflow-y-auto">
+    <div className="flex flex-col h-full w-full bg-[#1a0030]/80 backdrop-blur-sm">
       {/* User Profile Section */}
-      <div className="p-4 border-b border-white/10">
+      <div className="p-4 border-b border-white/10 flex items-center gap-3 shrink-0">
         <button
           onClick={handleProfileClick}
-          className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all group"
+          className="flex-1 flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all group min-w-0"
         >
-          <div className="relative w-12 h-12 rounded-full overflow-hidden ring-2 ring-purple-500/50 bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
+          <div className="relative w-12 h-12 shrink-0 rounded-full overflow-hidden ring-2 ring-purple-500/50 bg-linear-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
             {user?.profileImage ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -132,112 +133,123 @@ export default function LeftSide() {
               {user?.username ? `@${user.username}` : "Just vibing"}
             </p>
           </div>
-          <ChevronRight className="w-5 h-5 text-white/40 group-hover:text-white/60 transition-colors" />
+          <ChevronRight className="w-5 h-5 text-white/40 group-hover:text-white/60 transition-colors shrink-0" />
         </button>
-      </div>
-
-      {/* Menu Section */}
-      <div className="p-4 space-y-2">
-        <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider px-3 mb-2">MENU</h3>
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.path;
-          return (
-            <button
-              key={item.label}
-              onClick={() => router.push(item.path)}
-              className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-all ${isActive
-                ? 'bg-purple-500/20 text-white border border-purple-500/30'
-                : 'text-white/70 hover:text-white hover:bg-white/5'
-                }`}
-            >
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-purple-400' : ''}`} />
-                <span className="text-sm font-medium truncate">{item.label}</span>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                {item.label === "Chats" && unreadCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-full bg-pink-500 text-[10px] font-semibold">
-                    {Math.min(unreadCount, 9)}
-                  </span>
-                )}
-                <ChevronRight className={`w-4 h-4 ${isActive ? 'text-purple-400' : 'text-white/40'}`} />
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Vibe Section */}
-      <div className="p-4 space-y-2 border-t border-white/10">
-        <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider px-3 mb-2">VIBES</h3>
-        {vibeItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.path;
-          return (
-            <button
-              key={item.label}
-              onClick={() => router.push(item.path)}
-              className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-all ${isActive
-                ? 'bg-pink-500/20 text-white border border-pink-500/30'
-                : 'text-white/70 hover:text-white hover:bg-white/5'
-                }`}
-            >
-              <div className="flex items-center gap-3">
-                <Icon className={`w-5 h-5 ${isActive ? 'text-pink-300' : ''}`} />
-                <span className="text-sm font-medium">{item.label}</span>
-              </div>
-              <ChevronRight className={`w-4 h-4 ${isActive ? 'text-pink-300' : 'text-white/40'}`} />
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Advice for the Day Section */}
-      <div className="p-4 space-y-2 border-t border-white/10">
-        <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider px-3 mb-2">ADVICE FOR THE DAY</h3>
-        <div className="rounded-xl border border-purple-500/30 p-4 bg-linear-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-sm">
-          {loadingAdvice ? (
-            <div className="flex items-center justify-center gap-2 py-4">
-              <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
-              <span className="text-white/60 text-sm">Loading advice...</span>
-            </div>
-          ) : dailyAdvice ? (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 mb-2">
-                <Lightbulb className="w-4 h-4 text-yellow-400" />
-                <span className="text-xs font-semibold text-white/80 uppercase tracking-wider">Advice</span>
-              </div>
-              <p className="text-white text-sm leading-relaxed">{dailyAdvice}</p>
-            </div>
-          ) : (
-            <div className="text-center py-4">
-              <p className="text-white/60 text-sm">No advice available</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Help & Info Section */}
-      <div className="p-4 space-y-2 border-t border-white/10">
-        <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider px-3 mb-2">HELP & INFO</h3>
-        <button
-          onClick={() => router.push('/about')}
-          className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-all text-white/70 hover:text-white hover:bg-white/5"
+        
+        {/* Mobile Close Button */}
+        <button 
+          onClick={onClose}
+          className="lg:hidden p-2 text-white/40 hover:text-white transition-colors"
         >
-          <div className="flex items-center gap-3">
-            <Info className="w-5 h-5" />
-            <span className="text-sm font-medium">Learn About Site</span>
-          </div>
-          <ChevronRight className="w-4 h-4 text-white/40" />
+          <X className="w-6 h-6" />
         </button>
       </div>
 
-      {/* Footer */}
-      <div className="mt-auto p-4 border-t border-white/10">
-        <p className="text-center text-white/40 text-sm">
-          made with <span className="text-pink-400">♥</span> by vaibhav chauhan
-        </p>
+      {/* Scrollable Menu Content */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Menu Section */}
+        <div className="p-4 space-y-2">
+          <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider px-3 mb-2">MENU</h3>
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.path;
+            return (
+              <button
+                key={item.label}
+                onClick={() => router.push(item.path)}
+                className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-all ${isActive
+                  ? 'bg-purple-500/20 text-white border border-purple-500/30'
+                  : 'text-white/70 hover:text-white hover:bg-white/5'
+                  }`}
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-purple-400' : ''}`} />
+                  <span className="text-sm font-medium truncate">{item.label}</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {item.label === "Chats" && unreadCount > 0 && (
+                    <span className="px-2 py-0.5 rounded-full bg-pink-500 text-[10px] font-semibold">
+                      {Math.min(unreadCount, 9)}
+                    </span>
+                  )}
+                  <ChevronRight className={`w-4 h-4 ${isActive ? 'text-purple-400' : 'text-white/40'}`} />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Vibe Section */}
+        <div className="p-4 space-y-2 border-t border-white/10">
+          <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider px-3 mb-2">VIBES</h3>
+          {vibeItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.path;
+            return (
+              <button
+                key={item.label}
+                onClick={() => router.push(item.path)}
+                className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-all ${isActive
+                  ? 'bg-pink-500/20 text-white border border-pink-500/30'
+                  : 'text-white/70 hover:text-white hover:bg-white/5'
+                  }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-pink-300' : ''}`} />
+                  <span className="text-sm font-medium">{item.label}</span>
+                </div>
+                <ChevronRight className={`w-4 h-4 ${isActive ? 'text-pink-300' : 'text-white/40'}`} />
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Advice for the Day Section */}
+        <div className="p-4 space-y-2 border-t border-white/10">
+          <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider px-3 mb-2">ADVICE FOR THE DAY</h3>
+          <div className="rounded-xl border border-purple-500/30 p-4 bg-linear-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-sm">
+            {loadingAdvice ? (
+              <div className="flex items-center justify-center gap-2 py-4">
+                <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
+                <span className="text-white/60 text-sm">Loading advice...</span>
+              </div>
+            ) : dailyAdvice ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <Lightbulb className="w-4 h-4 text-yellow-400" />
+                  <span className="text-xs font-semibold text-white/80 uppercase tracking-wider">Advice</span>
+                </div>
+                <p className="text-white text-sm leading-relaxed">{dailyAdvice}</p>
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-white/60 text-sm">No advice available</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Help & Info Section */}
+        <div className="p-4 space-y-2 border-t border-white/10">
+          <h3 className="text-xs font-semibold text-white/40 uppercase tracking-wider px-3 mb-2">HELP & INFO</h3>
+          <button
+            onClick={() => router.push('/about')}
+            className="w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-all text-white/70 hover:text-white hover:bg-white/5"
+          >
+            <div className="flex items-center gap-3">
+              <Info className="w-5 h-5" />
+              <span className="text-sm font-medium">Learn About Site</span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-white/40" />
+          </button>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-white/10">
+          <p className="text-center text-white/40 text-sm">
+            made with <span className="text-pink-400">♥</span> by vaibhav chauhan
+          </p>
+        </div>
       </div>
     </div>
   );

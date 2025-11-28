@@ -9,7 +9,9 @@ import { getUnreadChatCount } from "../lib/vibeApi";
 import Image from "next/image";
 import logo from "@/public/logo.png";
 import toast from "react-hot-toast";
-export default function Header() {
+import { Menu } from "lucide-react";
+
+export default function Header({ onMenuClick }: { onMenuClick?: () => void }) {
   const router = useRouter();
   const { user } = useUserStore();
   const { unreadCount, setUnreadCount } = useChatNotificationStore();
@@ -61,6 +63,12 @@ export default function Header() {
     <div className="w-full sticky top-0 z-50 backdrop-blur-lg bg-black/30 border-b border-white/10">
       <div className="flex items-center justify-between gap-3 px-6 py-4 text-white">
         <div className="flex items-center gap-3 min-w-0">
+          <button
+            onClick={onMenuClick}
+            className="lg:hidden p-2 -ml-2 text-white/70 hover:text-white"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
           <Image
             src={logo}
             alt="Vibess Logo"

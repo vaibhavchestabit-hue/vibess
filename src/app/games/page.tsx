@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Brain, Loader2, RefreshCw, Coins, Gamepad2 } from "lucide-react";
+import { Brain, Loader2, RefreshCw, Coins, Gamepad2, Flame, X } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function GamesPage() {
@@ -27,6 +27,11 @@ export default function GamesPage() {
   const [playerScore, setPlayerScore] = useState(0);
   const [botScore, setBotScore] = useState(0);
   const [rpsLoading, setRpsLoading] = useState(false);
+
+  // FLAMES game state
+  const [flamesName1, setFlamesName1] = useState("");
+  const [flamesName2, setFlamesName2] = useState("");
+  const [flamesResult, setFlamesResult] = useState<{ title: string; description: string } | null>(null);
 
   const handleOverthink = async () => {
     setLoading(true);
@@ -55,6 +60,91 @@ export default function GamesPage() {
   const handleReset = () => {
     setOverthink(null);
     setCounter(null);
+  };
+
+  // FLAMES game function
+  const vibessFlames = (name1: string, name2: string) => {
+    // 1. Clean names
+    name1 = name1.toLowerCase().replace(/\s/g, '');
+    name2 = name2.toLowerCase().replace(/\s/g, '');
+
+    // 2. Convert to arrays
+    let arr1 = name1.split('');
+    let arr2 = name2.split('');
+
+    // 3. Remove common letters
+    for (let i = 0; i < arr1.length; i++) {
+      for (let j = 0; j < arr2.length; j++) {
+        if (arr1[i] === arr2[j]) {
+          arr1[i] = '';
+          arr2[j] = '';
+          break;
+        }
+      }
+    }
+
+    // 4. Count remaining letters
+    const remainingCount =
+      arr1.filter(ch => ch !== '').length +
+      arr2.filter(ch => ch !== '').length;
+
+    // 5. FLAMES array
+    let flames = ['F', 'L', 'A', 'M', 'E', 'S'];
+
+    // 6. Elimination logic
+    let count = remainingCount;
+    while (flames.length > 1) {
+      let index = (count % flames.length) - 1;
+      if (index >= 0) {
+        flames = flames.slice(index + 1).concat(flames.slice(0, index));
+      } else {
+        flames = flames.slice(0, flames.length - 1);
+      }
+    }
+
+    // 7. Result mapping
+    const resultMap: Record<string, { title: string; description: string }> = {
+      F: {
+        title: "Fun Buddies",
+        description: "Always laughing, always bakchodi. No tension, only comedy."
+      },
+      L: {
+        title: "Legendary Bakchod",
+        description: "Chaotic duo. Together you two can ruin any serious conversation in 5 minutes."
+      },
+      A: {
+        title: "Aesthetic Match",
+        description: "Same wallpaper vibe. Same playlist energy. Same Instagram mood."
+      },
+      M: {
+        title: "Momo Lovers",
+        description: "United by one true love: street food. If life fails, momos won't."
+      },
+      E: {
+        title: "Ek Tarfa Trauma",
+        description: "One sided feelings. Other side: \"Bro we're just friends 😭\". Painful but funny."
+      },
+      S: {
+        title: "Shaadi Material",
+        description: "Family approved vibes. Shaadi.com energy unlocked."
+      }
+    };
+
+    return resultMap[flames[0]];
+  };
+
+  const handleFlamesCalculate = () => {
+    if (!flamesName1.trim() || !flamesName2.trim()) {
+      return;
+    }
+    const result = vibessFlames(flamesName1.trim(), flamesName2.trim());
+    setFlamesResult(result);
+  };
+
+  const handleFlamesReset = () => {
+    setFlamesName1("");
+    setFlamesName2("");
+    setFlamesResult(null);
   };
 
   const handleMakeDecision = () => {
@@ -128,6 +218,92 @@ export default function GamesPage() {
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Games</h1>
           <p className="text-white/60 text-sm">Fun games to pass time and have a laugh</p>
+        </div>
+
+        {/* FLAMES Game */}
+        <div className="space-y-6">
+          <div className="rounded-3xl border border-orange-500/30 p-8 bg-gradient-to-br from-orange-500/10 to-red-500/10 backdrop-blur-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
+                <Flame className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white">FLAMES Game</h2>
+                <p className="text-white/60 text-sm">A Vibess Desi Fun Edition - Find your relationship vibe</p>
+              </div>
+            </div>
+
+            {!flamesResult ? (
+              <div className="space-y-6">
+                <div className="text-center py-8 bg-white/5 rounded-2xl border border-white/10">
+                  <p className="text-white/80 text-sm mb-6">
+                    Enter two names to discover your relationship vibe!
+                  </p>
+                  <div className="space-y-4 max-w-md mx-auto">
+                    <div>
+                      <label className="block text-xs text-white/60 mb-2 text-left">First Name</label>
+                      <input
+                        type="text"
+                        value={flamesName1}
+                        onChange={(e) => setFlamesName1(e.target.value)}
+                        placeholder="Enter first name"
+                        className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-white/60 mb-2 text-left">Second Name</label>
+                      <input
+                        type="text"
+                        value={flamesName2}
+                        onChange={(e) => setFlamesName2(e.target.value)}
+                        placeholder="Enter second name"
+                        className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all text-sm"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleFlamesCalculate}
+                    disabled={!flamesName1.trim() || !flamesName2.trim()}
+                    className="mt-6 px-8 py-4 rounded-xl bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold text-lg hover:from-orange-600 hover:to-red-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 mx-auto"
+                  >
+                    <Flame className="w-5 h-5" />
+                    <span>Calculate FLAMES</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Result Display */}
+                <div className="bg-gradient-to-br from-orange-500/20 to-red-500/20 border border-orange-500/30 rounded-2xl p-8 text-center">
+                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-r from-orange-500 to-red-500 mb-4">
+                    <Flame className="w-10 h-10 text-white" />
+                  </div>
+                  <h4 className="text-3xl font-bold text-white mb-3">{flamesResult.title}</h4>
+                  <p className="text-white/80 text-lg leading-relaxed px-4 max-w-lg mx-auto">
+                    {flamesResult.description}
+                  </p>
+                </div>
+
+                {/* Names Display */}
+                <div className="pt-4 border-t border-white/10 flex items-center justify-center gap-2 text-white/60">
+                  <span className="font-semibold">{flamesName1}</span>
+                  <span className="text-xl">❤️</span>
+                  <span className="font-semibold">{flamesName2}</span>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleFlamesReset}
+                    className="flex-1 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold transition-all flex items-center justify-center gap-2"
+                  >
+                    <X className="w-4 h-4" />
+                    <span>Try Another</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* The Overthink Button Game */}
